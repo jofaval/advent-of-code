@@ -1,3 +1,3 @@
 #!/bin/bash
 
-node ./../../dist/day-§DAY/main.js
+node ./../dist/day-§DAY/main.js

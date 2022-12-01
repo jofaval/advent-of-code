@@ -8,6 +8,13 @@ Done with Typescript at first
 pnpm install # or npm or yarn
 ```
 
+If you decide to run this project, you'll be needing to build typescript.
+I'm running the following command on a parallel terminal:
+
+```bash
+pnpm run watch:ts
+```
+
 ## Structure
 
 All files should follow the following structure:

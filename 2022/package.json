@@ -4,6 +4,6 @@
 		"@types/node": "^18.11.10"
 	},
 	"scripts": {
-		"start:ts": "tsc -w -p ."
+		"watch:ts": "tsc -w -p ."
 	}
 }

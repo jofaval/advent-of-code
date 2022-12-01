@@ -32,6 +32,15 @@ function getReadingPath({
     .replace(/[\\\/]/g, separator);
 }
 
+function sanitizeData(data: string): string {
+  let sanitized = data;
+
+  // force standarize the jump line formatting
+  sanitized = sanitized.replace("\r", "");
+
+  return sanitized;
+}
+
 export type ReadInputProps = GetReadingPathProps & {
   encoding?: "utf8";
 };

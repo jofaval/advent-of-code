@@ -40,7 +40,7 @@ Example:
 pnpm run create 2
 ```
 
-Will generate the [day-2](./day-2/) folder
+Will generate the [day-02](./day-02/) folder
 
 ## Structure
 

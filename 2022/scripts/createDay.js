@@ -4,11 +4,13 @@ const day = process.argv.at(-1);
 
 if (isNaN(day)) return -1;
 
+const paddedDay = day.padStart(2, "0");
+
 const fse = require("fs-extra");
 const fs = require("fs");
 
 const SRC_DIR = "./__template__";
-const DEST_DIR = `./day-${day}`;
+const DEST_DIR = `./day-${paddedDay}`;
 
 /**
  * @param {string} filename
@@ -31,8 +33,8 @@ function replaceDay(filename, day) {
 try {
   fse.copySync(SRC_DIR, DEST_DIR, { overwrite: true | false });
 
-  replaceDay(`${DEST_DIR}/main.ts`, day);
-  replaceDay(`${DEST_DIR}/run.sh`, day);
+  replaceDay(`${DEST_DIR}/main.ts`, paddedDay);
+  replaceDay(`${DEST_DIR}/run.sh`, paddedDay);
 
   console.log("File generated at:", DEST_DIR);
 } catch (err) {

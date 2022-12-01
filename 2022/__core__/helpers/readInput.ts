@@ -36,7 +36,7 @@ function sanitizeData(data: string): string {
   let sanitized = data;
 
   // force standarize the jump line formatting
-  sanitized = sanitized.replace("\r", "");
+  sanitized = sanitized.replaceAll("\r", "");
 
   return sanitized;
 }
@@ -53,7 +53,7 @@ export function readInput({
 
   try {
     const data = fs.readFileSync(readingPath, "utf8");
-    return data;
+    return sanitizeData(data);
   } catch (_) {
     return "";
   }

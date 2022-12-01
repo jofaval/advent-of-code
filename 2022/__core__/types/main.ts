@@ -1,3 +1,7 @@
-import { ReadInputProps } from "../helpers";
+export type AdventOfCodeStar = "first" | "second";
 
-export type MainProps = ReadInputProps & {};
+export type MainProps = {
+  day: number;
+  star: AdventOfCodeStar;
+  type: "example" | "test";
+};

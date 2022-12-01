@@ -17,7 +17,7 @@ function parseInput(content: string): Input {
   return sections.map((inventory) => inventory.split(JUMP_LINE).map(Number));
 }
 
-function main({ star, day, type }: MainProps) {
+function main({ star, day, type }: MainProps): CaloryCount | CaloryCount[] {
   const content = readInput({ star, day, type });
 
   const inventories = parseInput(content);
@@ -25,14 +25,18 @@ function main({ star, day, type }: MainProps) {
     inventory.reduce((prev, acc) => prev + acc, 0)
   );
 
-  return totalCaloriesPerInventory.reduce(
-    (candidate, max) => (candidate > max ? candidate : max),
-    -Infinity
-  );
+  const sortedTotals = totalCaloriesPerInventory.sort((a, b) => a - b);
+
+  if (star === "first") {
+    return sortedTotals.at(-1);
+  } else if (star === "second") {
+    const topInventories = sortedTotals.slice(-3);
+    return topInventories.reduce((prev, acc) => prev + acc, 0);
+  }
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 1, type: "test" });
+  const result = main({ star: "second", day: 1, type: "test" });
   console.log({ result });
 })();

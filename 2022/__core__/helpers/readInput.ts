@@ -1,10 +1,8 @@
+import { MainProps } from "../types";
+
 const fs = require("fs");
 
-type GetReadingPathProps = {
-  day: number;
-  star: "first" | "second";
-  type: "example" | "test";
-};
+type GetReadingPathProps = MainProps;
 
 const ROOT_FROM_DIST = ["..", "..", ".."];
 
@@ -41,7 +39,7 @@ function sanitizeData(data: string): string {
   return sanitized;
 }
 
-export type ReadInputProps = GetReadingPathProps & {
+type ReadInputProps = GetReadingPathProps & {
   encoding?: "utf8";
 };
 

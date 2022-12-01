@@ -2,5 +2,8 @@
 	"dependencies": {
 		"typescript": "^4.9.3",
 		"@types/node": "^18.11.10"
+	},
+	"scripts": {
+		"start:ts": "tsc -w -p ."
 	}
 }

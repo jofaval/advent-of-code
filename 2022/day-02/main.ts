@@ -42,10 +42,16 @@ const LossingGuide = {
   [EnemyOptions.Rock]: MyOptions.Scissors,
 } as const;
 
-const BattleOptions = {
+const BattleOptionsPoints = {
   [MyOptions.Rock]: 1,
   [MyOptions.Paper]: 2,
   [MyOptions.Scissors]: 3,
+} as const;
+
+const DesiredOutcomeDictMapping = {
+  [DesiredOutcome.Draw]: EnemyOptionsDictionary,
+  [DesiredOutcome.Win]: WinningGuide,
+  [DesiredOutcome.Loss]: LossingGuide,
 } as const;
 
 type Battle = [EnemyOptions, MyOptions];
@@ -75,7 +81,7 @@ function getBattleResult(battle: Battle): number {
 }
 
 function getBattleOptionPoints([, mine]: Battle): number {
-  return BattleOptions[mine];
+  return BattleOptionsPoints[mine];
 }
 
 function getResults(rounds: Input): number {
@@ -86,16 +92,7 @@ function getResults(rounds: Input): number {
 
 function withDesiredOutcome(rounds: Input): Input {
   return rounds.map(([elf, outcome]) => {
-    switch (outcome as string as DesiredOutcome) {
-      case DesiredOutcome.Draw:
-        return [elf, EnemyOptionsDictionary[elf]];
-
-      case DesiredOutcome.Win:
-        return [elf, WinningGuide[elf]];
-
-      case DesiredOutcome.Loss:
-        return [elf, LossingGuide[elf]];
-    }
+    return [elf, DesiredOutcomeDictMapping[outcome][elf]];
   });
 }
 

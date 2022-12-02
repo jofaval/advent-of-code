@@ -12,5 +12,5 @@
     "sourceMap": true
   },
   "include": ["**/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts", "./__template__/**.*"]
+  "exclude": ["node_modules", "**/*.spec.ts", "__core__/__template__/**.*"]
 }

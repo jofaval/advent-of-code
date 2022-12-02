@@ -9,7 +9,7 @@ const paddedDay = day.padStart(2, "0");
 const fse = require("fs-extra");
 const fs = require("fs");
 
-const SRC_DIR = "./__template__";
+const SRC_DIR = "./__core__/__template__";
 const DEST_DIR = `./day-${paddedDay}`;
 
 /**

@@ -61,9 +61,7 @@ type Input = Battle[];
 function parseInput(content: string): Input {
   const rawBattles = content.split(JUMP_LINE).filter(Boolean);
 
-  return rawBattles.map(
-    (rawBattle) => rawBattle.split(SPACE).map((option) => option) as Battle
-  );
+  return rawBattles.map((rawBattle) => rawBattle.split(SPACE) as Battle);
 }
 
 function getBattleResult(battle: Battle): number {
@@ -104,14 +102,7 @@ function main({ star, day, type }: MainProps) {
     rounds = withDesiredOutcome(rounds);
   }
 
-  const points = getResults(rounds);
-
-  switch (star) {
-    case "first":
-      return points;
-    case "second":
-      return points;
-  }
+  return getResults(rounds);
 }
 
 // entrypoint

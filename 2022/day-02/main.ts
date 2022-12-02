@@ -63,7 +63,7 @@ function parseInput(content: string): Input {
 function getBattleResult(battle: Battle): number {
   const [elf, mine] = battle;
 
-  if ((elf as string) === (mine as string)) {
+  if (EnemyOptionsDictionary[elf] === mine) {
     return RoundResult.Draw;
   }
 

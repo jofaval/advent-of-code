@@ -10,10 +10,11 @@ function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
   const parsed = parseInput(content);
 
-  if (star === "first") {
-    return parsed;
-  } else if (star === "second") {
-    return parsed;
+  switch (star) {
+    case "first":
+      return parsed;
+    case"second":
+      return parsed;
   }
 }
 

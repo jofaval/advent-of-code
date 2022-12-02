@@ -30,13 +30,13 @@ enum DesiredOutcome {
   Win = "Z",
 }
 
-const WinGuide = {
+const WinningGuide = {
   [EnemyOptions.Rock]: MyOptions.Paper,
   [EnemyOptions.Paper]: MyOptions.Scissors,
   [EnemyOptions.Scissors]: MyOptions.Rock,
 } as const;
 
-const LossGuide = {
+const LossingGuide = {
   [EnemyOptions.Paper]: MyOptions.Rock,
   [EnemyOptions.Scissors]: MyOptions.Paper,
   [EnemyOptions.Rock]: MyOptions.Scissors,
@@ -67,35 +67,11 @@ function getBattleResult(battle: Battle): number {
     return RoundResult.Draw;
   }
 
-  switch (elf) {
-    case EnemyOptions.Paper:
-      switch (mine) {
-        case MyOptions.Scissors:
-          return RoundResult.Win;
-        case MyOptions.Rock:
-          return RoundResult.Loss;
-        case MyOptions.Paper:
-          return RoundResult.Draw;
-      }
-    case EnemyOptions.Rock:
-      switch (mine) {
-        case MyOptions.Paper:
-          return RoundResult.Win;
-        case MyOptions.Scissors:
-          return RoundResult.Loss;
-        case MyOptions.Rock:
-          return RoundResult.Draw;
-      }
-    case EnemyOptions.Scissors:
-      switch (mine) {
-        case MyOptions.Rock:
-          return RoundResult.Win;
-        case MyOptions.Paper:
-          return RoundResult.Loss;
-        case MyOptions.Scissors:
-          return RoundResult.Draw;
-      }
+  if (WinningGuide[elf] === mine) {
+    return RoundResult.Win;
   }
+
+  return RoundResult.Loss;
 }
 
 function getBattleOptionPoints([, mine]: Battle): number {
@@ -110,23 +86,16 @@ function getResults(rounds: Input): number {
 
 function withDesiredOutcome(rounds: Input): Input {
   return rounds.map(([elf, outcome]) => {
-    let mine = "";
-
     switch (outcome as string as DesiredOutcome) {
       case DesiredOutcome.Draw:
-        mine = EnemyOptionsDictionary[elf];
-        break;
+        return [elf, EnemyOptionsDictionary[elf]];
 
       case DesiredOutcome.Win:
-        mine = WinGuide[elf];
-        break;
+        return [elf, WinningGuide[elf]];
 
       case DesiredOutcome.Loss:
-        mine = LossGuide[elf];
-        break;
+        return [elf, LossingGuide[elf]];
     }
-
-    return [elf, mine as MyOptions];
   });
 }
 

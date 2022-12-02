@@ -25,7 +25,13 @@ function getReadingPath({
 
   filename += ".txt";
 
-  return [__dirname, ...ROOT_FROM_DIST, `day-${day}`, star, filename]
+  return [
+    __dirname,
+    ...ROOT_FROM_DIST,
+    `day-${day.toString().padStart(2, "0")}`,
+    star,
+    filename,
+  ]
     .join(separator)
     .replace(/[\\\/]/g, separator);
 }

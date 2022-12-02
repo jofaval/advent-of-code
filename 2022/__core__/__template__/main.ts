@@ -20,6 +20,6 @@ function main({ star, day, type }: MainProps) {
 
 // entrypoint
 (() => {
-  const result = main({ star: "second", day: §DAY, type: "test" });
+  const result = main({ star: "first", day: §DAY, type: "example" });
   console.log({ result });
 })();

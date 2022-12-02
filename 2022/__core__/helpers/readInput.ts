@@ -8,7 +8,6 @@ const ROOT_FROM_DIST = ["..", "..", ".."];
 
 function getReadingPath({
   day,
-  star,
   type,
   separator = "/",
 }: ReadInputProps & { separator?: string }): string {
@@ -29,7 +28,7 @@ function getReadingPath({
     __dirname,
     ...ROOT_FROM_DIST,
     `day-${day.toString().padStart(2, "0")}`,
-    star,
+    "first", // hardcoded, first and second stars will use the same data
     filename,
   ]
     .join(separator)

@@ -7,6 +7,10 @@ type Row = [Compartment, Compartment];
 
 type Input = Row[];
 
+type SecondRow = [Compartment, Compartment, Compartment];
+
+type SecondInput = SecondRow[];
+
 function parseInput(content: string): Input {
   return content.split(JUMP_LINE).map((section) => {
     const splitted = section.split("");
@@ -20,10 +24,43 @@ function parseInput(content: string): Input {
   });
 }
 
+function parseSecondInput(content: string, groupSize: number = 3): SecondInput {
+  const rows = content.split(JUMP_LINE).filter(Boolean);
+  const groups = [];
+
+  const rowsLen = rows.length;
+  let groupIndex = 1;
+  let newGroup = [];
+  for (let rowIndex = 0; rowIndex < rowsLen; rowIndex++) {
+    newGroup.push(rows[rowIndex].split(""));
+
+    if (groupIndex % 3 === 0) {
+      groups.push(newGroup);
+      newGroup = [];
+
+      groupIndex = 1;
+    } else {
+      groupIndex++;
+    }
+  }
+
+  return groups as SecondInput;
+}
+
 function analyzeCompartments(row: Row): string {
   const [first, second] = row;
 
   const found = first.find((char) => second.includes(char));
+
+  return found;
+}
+
+function analyzeSecondCompartments(row: SecondRow): string {
+  const [first, second, third] = row;
+
+  const found = first.find(
+    (char) => second.includes(char) && third.includes(char)
+  );
 
   return found;
 }
@@ -52,22 +89,31 @@ function evaluateRows(rows: Input): number {
     .reduce(sumReducer, 0);
 }
 
+function evaluateSecondRows(rows: SecondInput) {
+  return rows
+    .map(analyzeSecondCompartments)
+    .map(getCharPriority)
+    .reduce(sumReducer, 0);
+}
+
 function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
-  const parsed = parseInput(content);
-
-  const sumPriorities = evaluateRows(parsed);
+  let parsed, sumPriorities;
 
   switch (star) {
     case "first":
+      parsed = parseInput(content);
+      sumPriorities = evaluateRows(parsed);
       return sumPriorities;
     case "second":
-      return parsed;
+      parsed = parseSecondInput(content);
+      sumPriorities = evaluateSecondRows(parsed);
+      return sumPriorities;
   }
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 3, type: "test" });
+  const result = main({ star: "second", day: 3, type: "test" });
   console.log({ result });
 })();

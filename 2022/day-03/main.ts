@@ -4,11 +4,9 @@ type Compartment = string[];
 
 type Row = [Compartment, Compartment];
 
-type Input = Row[];
-
 type SecondRow = [Compartment, Compartment, Compartment];
 
-type SecondInput = SecondRow[];
+type Input = (Row | SecondRow)[];
 
 function parseInput(content: string): Input {
   return content.split(JUMP_LINE).map((section) => {
@@ -23,7 +21,7 @@ function parseInput(content: string): Input {
   });
 }
 
-function parseSecondInput(content: string, groupSize: number = 3): SecondInput {
+function parseSecondInput(content: string, groupSize: number = 3): Input {
   const rows = content.split(JUMP_LINE).filter(Boolean);
   const groups = [];
 
@@ -33,17 +31,17 @@ function parseSecondInput(content: string, groupSize: number = 3): SecondInput {
   for (let rowIndex = 0; rowIndex < rowsLen; rowIndex++) {
     newGroup.push(rows[rowIndex].split(""));
 
-    if (groupIndex % groupSize === 0) {
-      groups.push(newGroup);
-      newGroup = [];
-
-      groupIndex = 1;
-    } else {
+    if (groupIndex % groupSize !== 0) {
       groupIndex++;
+      continue;
     }
+
+    groups.push(newGroup);
+    newGroup = [];
+    groupIndex = 1;
   }
 
-  return groups as SecondInput;
+  return groups;
 }
 
 function analyzeCompartments(row: Row | SecondRow): string {

@@ -1,4 +1,4 @@
-import { MainProps, readInput } from "..";
+import { MainProps, readInput } from "../__core__";
 
 type Input = any;
 

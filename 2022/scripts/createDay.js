@@ -33,7 +33,7 @@ function replaceDay(filename, day) {
 try {
   fse.copySync(SRC_DIR, DEST_DIR, { overwrite: true | false });
 
-  replaceDay(`${DEST_DIR}/main.ts`, paddedDay);
+  replaceDay(`${DEST_DIR}/main.ts`, day);
   replaceDay(`${DEST_DIR}/run.sh`, paddedDay);
 
   console.log("File generated at:", DEST_DIR);

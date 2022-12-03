@@ -2,11 +2,9 @@ import { JUMP_LINE, MainProps, readInput, sumReducer } from "../__core__";
 
 type Compartment = string[];
 
-type Row = [Compartment, Compartment];
+type Row = Compartment[];
 
-type SecondRow = [Compartment, Compartment, Compartment];
-
-type Input = (Row | SecondRow)[];
+type Input = Row[];
 
 function parseInput(content: string): Input {
   return content.split(JUMP_LINE).map((section) => {
@@ -44,12 +42,8 @@ function parseSecondInput(content: string, groupSize: number = 3): Input {
   return groups;
 }
 
-function analyzeCompartments(row: Row | SecondRow): string {
-  const [first, ...rest] = row;
-
-  const found = first.find((char) => rest.every((part) => part.includes(char)));
-
-  return found;
+function analyzeCompartments([first, ...rest]: Row): string {
+  return first.find((char) => rest.every((part) => part.includes(char)));
 }
 
 function isLowerCase(char: string): boolean {

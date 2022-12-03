@@ -1,5 +1,4 @@
-import { JUMP_LINE, MainProps, readInput } from "../__core__";
-import { sumReducer } from "../__core__/helpers/reducers";
+import { JUMP_LINE, MainProps, readInput, sumReducer } from "../__core__";
 
 type Compartment = string[];
 
@@ -34,7 +33,7 @@ function parseSecondInput(content: string, groupSize: number = 3): SecondInput {
   for (let rowIndex = 0; rowIndex < rowsLen; rowIndex++) {
     newGroup.push(rows[rowIndex].split(""));
 
-    if (groupIndex % 3 === 0) {
+    if (groupIndex % groupSize === 0) {
       groups.push(newGroup);
       newGroup = [];
 
@@ -47,20 +46,10 @@ function parseSecondInput(content: string, groupSize: number = 3): SecondInput {
   return groups as SecondInput;
 }
 
-function analyzeCompartments(row: Row): string {
-  const [first, second] = row;
+function analyzeCompartments(row: Row | SecondRow): string {
+  const [first, ...rest] = row;
 
-  const found = first.find((char) => second.includes(char));
-
-  return found;
-}
-
-function analyzeSecondCompartments(row: SecondRow): string {
-  const [first, second, third] = row;
-
-  const found = first.find(
-    (char) => second.includes(char) && third.includes(char)
-  );
+  const found = first.find((char) => rest.every((part) => part.includes(char)));
 
   return found;
 }
@@ -89,27 +78,18 @@ function evaluateRows(rows: Input): number {
     .reduce(sumReducer, 0);
 }
 
-function evaluateSecondRows(rows: SecondInput) {
-  return rows
-    .map(analyzeSecondCompartments)
-    .map(getCharPriority)
-    .reduce(sumReducer, 0);
-}
-
 function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
-  let parsed, sumPriorities;
 
-  switch (star) {
-    case "first":
-      parsed = parseInput(content);
-      sumPriorities = evaluateRows(parsed);
-      return sumPriorities;
-    case "second":
-      parsed = parseSecondInput(content);
-      sumPriorities = evaluateSecondRows(parsed);
-      return sumPriorities;
+  let parsed;
+  if (star === "first") {
+    parsed = parseInput(content);
+  } else if (star === "second") {
+    parsed = parseSecondInput(content);
   }
+
+  const sumPriorities = evaluateRows(parsed);
+  return sumPriorities;
 }
 
 // entrypoint

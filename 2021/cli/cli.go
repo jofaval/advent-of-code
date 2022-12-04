@@ -99,5 +99,5 @@ func runDay(workingDirectory string, day int) {
 	}
 
 	result := GetDayExecutorFor(day)()
-	fmt.Println(result)
+	fmt.Println("Result:", result)
 }

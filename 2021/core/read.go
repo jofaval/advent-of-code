@@ -6,14 +6,16 @@ import (
 )
 
 const (
-	Example = iota
-	Test    = iota
+	ExampleInput = iota
+	TestInput    = iota
+	FirstStar    = iota
+	SecondStar   = iota
 )
 
 type AdventOfCodeProps struct {
-	star  string
-	day   int
-	input int
+	Star  int
+	Day   int
+	Input int
 }
 
 func Read(props AdventOfCodeProps) string {

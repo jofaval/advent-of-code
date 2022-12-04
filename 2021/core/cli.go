@@ -1,10 +1,13 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"jofaval.advent-of-code/2021/conf"
 )
 
 func Cli() {
@@ -27,23 +30,23 @@ func Cli() {
 		panic("The given day was not detected as a number")
 	}
 
-	switch action {
-	case "run":
-		runDay(parsedDay)
-		return
-	case "create":
-		createDay(parsedDay)
-		return
-	}
-}
-
-func createDay(day int) {
-	fmt.Println("Attempting to create day", day)
-
 	workingDirectory, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
+
+	switch action {
+	case "run":
+		runDay(workingDirectory, parsedDay)
+		return
+	case "create":
+		createDay(workingDirectory, parsedDay)
+		return
+	}
+}
+
+func createDay(workingDirectory string, day int) {
+	fmt.Println("Attempting to create day", day)
 
 	paddedDay := PadDay(day)
 	templateFolder := filepath.Join(workingDirectory, "core", "template")
@@ -61,6 +64,15 @@ func createDay(day int) {
 	ReplaceContent(filepath.Join(dayFolder, "main.go"), "$DAY", strconv.Itoa(day))
 }
 
-func runDay(day int) {
+func runDay(workingDirectory string, day int) {
 	fmt.Println("Attempting to run day", day)
+
+	paddedDay := PadDay(day)
+	dayFolder := filepath.Join(workingDirectory, "day-"+paddedDay)
+	if _, err := os.Stat(dayFolder); errors.Is(err, os.ErrNotExist) {
+		panic(err)
+	}
+
+	result := conf.GetDayExecutorFor(day)()
+	fmt.Println(result)
 }

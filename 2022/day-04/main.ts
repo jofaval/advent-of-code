@@ -14,21 +14,33 @@ function parseInput(content: string): Input {
   });
 }
 
-function doesRangeOverlap([first, second]: Pair): boolean {
-  if (first[0] >= second[0] && first[1] <= second[1]) {
-    return true;
-  }
-
-  if (second[0] >= first[0] && second[1] <= first[1]) {
-    return true;
-  }
-
-  return false;
+function generateRange([min, max]: Range) {
+  return [...Array(max - (min - 1)).keys()].map((key) => key + min);
 }
 
-function countOverlaps(pairs: Input): number {
+function doesRangeOverlap([first, second]: Pair, atAll: boolean): boolean {
+  const firstRange = generateRange(first);
+  const secondRange = generateRange(second);
+
+  if (atAll) {
+    const doOverlapAtAll =
+      firstRange.some((num) => secondRange.includes(num)) ||
+      secondRange.some((num) => firstRange.includes(num));
+
+    if (doOverlapAtAll) {
+      return true;
+    }
+  }
+
+  return (
+    firstRange.every((num) => secondRange.includes(num)) ||
+    secondRange.every((num) => firstRange.includes(num))
+  );
+}
+
+function countOverlaps(pairs: Input, atAll: boolean = false): number {
   return pairs.reduce(
-    (count, pair) => (doesRangeOverlap(pair) ? count + 1 : count),
+    (count, pair) => (doesRangeOverlap(pair, atAll) ? count + 1 : count),
     0
   );
 }
@@ -37,18 +49,13 @@ function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
   const parsed = parseInput(content);
 
-  const totalOverlaps = countOverlaps(parsed);
+  const totalOverlaps = countOverlaps(parsed, star === "second");
 
-  switch (star) {
-    case "first":
-      return totalOverlaps;
-    case "second":
-      return parsed;
-  }
+  return totalOverlaps;
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 4, type: "test" });
+  const result = main({ star: "second", day: 4, type: "test" });
   console.log({ result });
 })();

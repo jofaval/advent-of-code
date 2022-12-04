@@ -39,7 +39,7 @@ It will generate everything you may need, except the executor linking.
 [Back to contents](#contents)
 
 Even tho it should automatically do so, it's unsorted, and it may be nice to manually check.
-Or, you may simply not want to use the CLI and everything manually.
+Or, you may simply not want to use the CLI and do everything manually.
 
 1. Go to [`./cli/days_config.go`](./cli/days_config.go)
 1. Import the day package

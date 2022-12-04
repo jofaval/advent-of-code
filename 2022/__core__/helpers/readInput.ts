@@ -58,7 +58,15 @@ export function readInput({
 
   try {
     const data = fs.readFileSync(readingPath, "utf8");
-    return sanitizeData(data);
+    const sanitizedData = sanitizeData(data);
+
+    if (!sanitizedData.trim().length) {
+      throw new Error(
+        `Careful there! ${readingPath} was found without any content at all!`
+      );
+    }
+
+    return sanitizedData;
   } catch (_) {
     return "";
   }

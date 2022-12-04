@@ -3,6 +3,7 @@ package core
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -45,14 +46,29 @@ func GetDayFolderName(day int) string {
 	return "day-" + PadDay(day)
 }
 
+func sanitizeContent(content []byte) string {
+	contentAsString := string(content)
+	sanitizedContent := strings.Trim(contentAsString, "\n ")
+	sanitizedContent = strings.ReplaceAll(sanitizedContent, "\r", "")
+
+	return sanitizedContent
+}
+
 func ReadInput(props AdventOfCodeProps) string {
 	workingDirectory := GetWorkingDirectory()
 
-	content, err := os.ReadFile(filepath.Join(workingDirectory, GetDayFolderName(props.Day), "data", getDataFilename(props.Input)))
+	inputFilename := getDataFilename(props.Input)
+	dataPath := filepath.Join(workingDirectory, GetDayFolderName(props.Day), "data", inputFilename)
+	content, err := os.ReadFile(dataPath)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return string(content)
+	sanitizedContent := sanitizeContent(content)
+	if len(sanitizedContent) <= 0 {
+		panic("The contents of \"" + dataPath + "\" are empty. Make sure \"" + inputFilename + "\" has content.")
+	}
+
+	return sanitizedContent
 }

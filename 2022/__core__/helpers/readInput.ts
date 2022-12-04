@@ -40,6 +40,8 @@ function sanitizeData(data: string): string {
 
   // force standarize the jump line formatting
   sanitized = sanitized.replaceAll("\r", "");
+  // removes the last jumpline
+  sanitized = sanitized.trimEnd();
 
   return sanitized;
 }

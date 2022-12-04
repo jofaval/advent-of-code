@@ -1,4 +1,4 @@
-package core
+package cli
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"jofaval.advent-of-code/2021/conf"
+	"jofaval.advent-of-code/2021/core"
 )
 
 const (
@@ -26,7 +26,7 @@ func Cli() {
 
 	var action = os.Args[1]
 
-	if !Contains([]string{RunAction, CreateAction}, action) {
+	if !core.Contains([]string{RunAction, CreateAction}, action) {
 		panic("The provided action does not sastisfy the requirements, " + options + "")
 	}
 
@@ -55,11 +55,11 @@ func Cli() {
 func createDay(workingDirectory string, day int) {
 	fmt.Println("Attempting to create day", day)
 
-	paddedDay := PadDay(day)
+	paddedDay := core.PadDay(day)
 	templateFolder := filepath.Join(workingDirectory, "core", "template")
 	dayFolder := filepath.Join(workingDirectory, "day-"+paddedDay)
 
-	success := CopyFolder(templateFolder, dayFolder)
+	success := core.CopyFolder(templateFolder, dayFolder)
 	if success {
 		fmt.Println("Folder successfully created at:", dayFolder, "from:", templateFolder)
 	} else {
@@ -67,19 +67,19 @@ func createDay(workingDirectory string, day int) {
 		return
 	}
 
-	ReplaceContent(filepath.Join(dayFolder, "run.sh"), "$DAY", paddedDay)
-	ReplaceContent(filepath.Join(dayFolder, "main.go"), "$DAY", strconv.Itoa(day))
+	core.ReplaceContent(filepath.Join(dayFolder, "run.sh"), "$DAY", paddedDay)
+	core.ReplaceContent(filepath.Join(dayFolder, "main.go"), "$DAY", strconv.Itoa(day))
 }
 
 func runDay(workingDirectory string, day int) {
 	fmt.Println("Attempting to run day", day)
 
-	paddedDay := PadDay(day)
+	paddedDay := core.PadDay(day)
 	dayFolder := filepath.Join(workingDirectory, "day-"+paddedDay)
 	if _, err := os.Stat(dayFolder); errors.Is(err, os.ErrNotExist) {
 		panic(err)
 	}
 
-	result := conf.GetDayExecutorFor(day)()
+	result := GetDayExecutorFor(day)()
 	fmt.Println(result)
 }

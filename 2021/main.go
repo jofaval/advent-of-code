@@ -1,9 +1,9 @@
 package main
 
 import (
-	"jofaval.advent-of-code/2021/core"
+	"jofaval.advent-of-code/2021/cli"
 )
 
 func main() {
-	core.Cli()
+	cli.Cli()
 }

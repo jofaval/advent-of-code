@@ -1,4 +1,4 @@
-package conf
+package cli
 
 import (
 	day11 "jofaval.advent-of-code/2021/day-11"

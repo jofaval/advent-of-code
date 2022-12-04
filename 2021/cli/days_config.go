@@ -6,6 +6,8 @@ import (
 
 func getDaysExecutors() map[int]func() int {
 	daysExecutors := make(map[int]func() int)
+
+	// Executors linking
 	daysExecutors[11] = day11.Main
 
 	return daysExecutors

@@ -24,13 +24,13 @@ func Cli() {
 		panic("Too many arguments provided, \"go run main.go " + options + " [day]\"")
 	}
 
-	var action = os.Args[1]
+	action := os.Args[1]
 
 	if !core.Contains([]string{RunAction, CreateAction}, action) {
 		panic("The provided action does not sastisfy the requirements, " + options + "")
 	}
 
-	var day = os.Args[2]
+	day := os.Args[2]
 	parsedDay, err := strconv.Atoi(day)
 
 	if err != nil {

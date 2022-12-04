@@ -1,1 +1,1 @@
-go run ./../main.go run $DAY 
+go run ./../main.go run $DAY

@@ -41,10 +41,14 @@ func getDataFilename(input int) string {
 	return dataFile
 }
 
+func GetDayFolderName(day int) string {
+	return "day-" + PadDay(day)
+}
+
 func ReadInput(props AdventOfCodeProps) string {
 	workingDirectory := GetWorkingDirectory()
 
-	content, err := os.ReadFile(filepath.Join(workingDirectory, "day-"+PadDay(props.Day), "data", getDataFilename(props.Input)))
+	content, err := os.ReadFile(filepath.Join(workingDirectory, GetDayFolderName(props.Day), "data", getDataFilename(props.Input)))
 
 	if err != nil {
 		panic(err)

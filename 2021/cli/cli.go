@@ -13,6 +13,8 @@ import (
 const (
 	RunAction    = "run"
 	CreateAction = "create"
+
+	HardcodedDay = "$DAY"
 )
 
 func Cli() {
@@ -64,15 +66,14 @@ func createDay(workingDirectory string, day int) {
 		return
 	}
 
-	core.ReplaceContent(filepath.Join(dayFolder, "run.sh"), "$DAY", paddedDay)
-	core.ReplaceContent(filepath.Join(dayFolder, "main.go"), "$DAY", strconv.Itoa(day))
+	core.ReplaceContent(filepath.Join(dayFolder, "run.sh"), HardcodedDay, paddedDay)
+	core.ReplaceContent(filepath.Join(dayFolder, "main.go"), HardcodedDay, strconv.Itoa(day))
 }
 
 func runDay(workingDirectory string, day int) {
 	fmt.Println("Attempting to run day", day)
 
-	paddedDay := core.PadDay(day)
-	dayFolder := filepath.Join(workingDirectory, "day-"+paddedDay)
+	dayFolder := filepath.Join(workingDirectory, core.GetDayFolderName(day))
 	if _, err := os.Stat(dayFolder); errors.Is(err, os.ErrNotExist) {
 		panic(err)
 	}

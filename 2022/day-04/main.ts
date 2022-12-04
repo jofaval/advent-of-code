@@ -22,19 +22,11 @@ function doesRangeOverlap([first, second]: Pair, atAll: boolean): boolean {
   const firstRange = generateRange(first);
   const secondRange = generateRange(second);
 
-  if (atAll) {
-    const doOverlapAtAll =
-      firstRange.some((num) => secondRange.includes(num)) ||
-      secondRange.some((num) => firstRange.includes(num));
-
-    if (doOverlapAtAll) {
-      return true;
-    }
-  }
+  const operation = atAll ? "some" : "every";
 
   return (
-    firstRange.every((num) => secondRange.includes(num)) ||
-    secondRange.every((num) => firstRange.includes(num))
+    firstRange[operation]((num) => secondRange.includes(num)) ||
+    secondRange[operation]((num) => firstRange.includes(num))
   );
 }
 

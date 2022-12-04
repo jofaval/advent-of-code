@@ -2,12 +2,15 @@
 
 This was the year I initialize heard from Advent of Code, recomended by a great friend of mine, I started with Javascript, my approach all messy (structure-wise).
 
+[https://github.com/jofaval/advent-code-2021/](https://github.com/jofaval/advent-code-2021/)
+
 This time around I'm using Golang.
 
 ## Contents
 
 1. [Execute the challenges](#execute-the-challenges)
 1. [CLI - Create a day](#cli---create-a-day)
+   1. [Link the execution](#link-the-execution)
 1. [Structure](#structure)
 1. [CLI - Run a challenge(day)](#cli---run-a-challengeday)
 
@@ -30,6 +33,8 @@ go run main.go create [day number]
 It will generate everything you may need, except the executor linking.
 
 ### Link the execution
+
+[Back to contents](#contents)
 
 1. Go to [`./cli/days_config.go`](./cli/days_config.go)
 1. Import the day package

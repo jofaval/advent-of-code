@@ -10,17 +10,24 @@ import (
 	"jofaval.advent-of-code/2021/conf"
 )
 
+const (
+	RunAction    = "run"
+	CreateAction = "create"
+)
+
 func Cli() {
+	options := "[" + RunAction + "|" + CreateAction + "]"
+
 	if len(os.Args) < 3 {
-		panic("Not enough arguments provided, \"go run main.go [run|create] [day]\"")
+		panic("Not enough arguments provided, \"go run main.go " + options + " [day]\"")
 	} else if len(os.Args) > 3 {
-		panic("Too many arguments provided, \"go run main.go [run|create] [day]\"")
+		panic("Too many arguments provided, \"go run main.go " + options + " [day]\"")
 	}
 
 	var action = os.Args[1]
 
-	if !Contains([]string{"run", "create"}, action) {
-		panic("The provided action does not sastisfy the requirements, [run|create]")
+	if !Contains([]string{RunAction, CreateAction}, action) {
+		panic("The provided action does not sastisfy the requirements, " + options + "")
 	}
 
 	var day = os.Args[2]
@@ -36,10 +43,10 @@ func Cli() {
 	}
 
 	switch action {
-	case "run":
+	case RunAction:
 		runDay(workingDirectory, parsedDay)
 		return
-	case "create":
+	case CreateAction:
 		createDay(workingDirectory, parsedDay)
 		return
 	}

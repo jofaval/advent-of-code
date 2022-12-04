@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -38,6 +39,26 @@ func Cli() {
 
 func createDay(day int) {
 	fmt.Println("Attempting to create day", day)
+
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
+	paddedDay := PadDay(day)
+	templateFolder := filepath.Join(workingDirectory, "core", "template")
+	dayFolder := filepath.Join(workingDirectory, "day-"+paddedDay)
+
+	success := CopyFolder(templateFolder, dayFolder)
+	if success {
+		fmt.Println("Folder successfully created at:", dayFolder, "from:", templateFolder)
+	} else {
+		fmt.Println("Could not create the folder for day:", day)
+		return
+	}
+
+	ReplaceContent(filepath.Join(dayFolder, "run.sh"), "$DAY", paddedDay)
+	ReplaceContent(filepath.Join(dayFolder, "main.go"), "$DAY", strconv.Itoa(day))
 }
 
 func runDay(day int) {

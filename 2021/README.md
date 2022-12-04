@@ -26,6 +26,8 @@ You'll need to install Golang, which you can do at their [official website](http
 
 From the root of this year (../2021):
 
+It will basically copy and configure the [template](./core/template/)
+
 ```bash
 go run main.go create [day number]
 ```
@@ -36,6 +38,9 @@ It will generate everything you may need, except the executor linking.
 
 [Back to contents](#contents)
 
+Even tho it should automatically do so, it's unsorted, and it may be nice to manually check.
+Or, you may simply not want to use the CLI and everything manually.
+
 1. Go to [`./cli/days_config.go`](./cli/days_config.go)
 1. Import the day package
 1. Manually add the following line
@@ -43,8 +48,8 @@ It will generate everything you may need, except the executor linking.
 ```go
 // ./cli/days_config.go
 
-10	// Executors linking
-11	daysExecutors[DAY_NUMBER] = dayDAY_NUMBER.Main
+xx	// Executors linking
+xx	daysExecutors[DAY_NUMBER] = dayDAY_NUMBER.Main
 ```
 
 ## Structure

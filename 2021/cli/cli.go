@@ -66,8 +66,28 @@ func createDay(workingDirectory string, day int) {
 		return
 	}
 
+	// in-day configuration
 	core.ReplaceContent(filepath.Join(dayFolder, "run.sh"), HardcodedDay, paddedDay)
 	core.ReplaceContent(filepath.Join(dayFolder, "main.go"), HardcodedDay, strconv.Itoa(day))
+
+	// cli configuration
+	cliDaysConfigFile := filepath.Join(workingDirectory, "cli", "days_config.go")
+
+	// import
+	core.ReplaceContent(
+		cliDaysConfigFile,
+		"	// day$DAY \"jofaval.advent-of-code/2021/day-$DAY\"",
+		"	// day$DAY \"jofaval.advent-of-code/2021/day-$DAY\""+
+			"\n"+"	day"+paddedDay+" \"jofaval.advent-of-code/2021/day-"+paddedDay+"\"",
+	)
+
+	// map configuration
+	core.ReplaceContent(
+		cliDaysConfigFile,
+		"	// daysExecutors[$DAY] = day$DAY.Main",
+		"	// daysExecutors[$DAY] = day$DAY.Main"+
+			"\n"+"	daysExecutors["+paddedDay+"] = day"+paddedDay+".Main",
+	)
 }
 
 func runDay(workingDirectory string, day int) {

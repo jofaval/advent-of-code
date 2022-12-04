@@ -1,3 +1,6 @@
 {
-  "prettier.endOfLine": "lf"
+  "prettier.endOfLine": "lf",
+  "gopls": {
+    "experimentalWorkspaceModule": true
+  }
 }

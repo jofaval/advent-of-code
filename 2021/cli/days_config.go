@@ -15,15 +15,15 @@ func getDaysExecutors() map[int]func() int {
 	return daysExecutors
 }
 
-func defaultExecturoResponse() int {
+func defaultExecutorResponse() int {
 	return -1
 }
 
 func GetDayExecutorFor(day int) func() int {
 	executorsMap := getDaysExecutors()
-	if val, ok := executorsMap[day]; ok {
-		return val
+	if executor, ok := executorsMap[day]; ok {
+		return executor
 	}
 
-	return defaultExecturoResponse
+	return defaultExecutorResponse
 }

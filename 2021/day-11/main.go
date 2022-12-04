@@ -6,7 +6,7 @@ import (
 
 func Main() int {
 	result := 0
-	content := core.Read(core.AdventOfCodeProps{
+	content := core.ReadInput(core.AdventOfCodeProps{
 		Star:  core.FirstStar,
 		Day:   11,
 		Input: core.ExampleInput,

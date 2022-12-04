@@ -37,10 +37,7 @@ func Cli() {
 		panic("The given day was not detected as a number")
 	}
 
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
+	workingDirectory := core.GetWorkingDirectory()
 
 	switch action {
 	case RunAction:

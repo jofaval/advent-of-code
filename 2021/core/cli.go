@@ -13,7 +13,7 @@ import (
 func Cli() {
 	if len(os.Args) < 3 {
 		panic("Not enough arguments provided, \"go run main.go [run|create] [day]\"")
-	} else if len(os.Args) < 3 {
+	} else if len(os.Args) > 3 {
 		panic("Too many arguments provided, \"go run main.go [run|create] [day]\"")
 	}
 

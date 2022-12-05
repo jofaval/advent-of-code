@@ -12,7 +12,7 @@ import (
 const (
 	star  = core.FirstStar
 	day   = 11
-	input = core.ExampleInput
+	input = core.TestInput
 
 	PreFlashingNumber = 9
 	RecentlyFlashed   = 0
@@ -78,14 +78,13 @@ func incrementAndCheckFlash(grid Grid, x int, y int) Grid {
 	grid[x][y] = grid[x][y] + 1
 	if grid[x][y] > PreFlashingNumber {
 		grid = flash(grid, x, y)
-		// grid[x][y] = PreFlashingNumber
 	}
 
 	return grid
 }
 
 func flash(grid Grid, x int, y int) Grid {
-	// displayLabel("Before Flash", grid[x][y], x, y)
+	grid[x][y] = RecentlyFlashed
 
 	// top row
 	if x > 0 && y > 0 {
@@ -102,7 +101,6 @@ func flash(grid Grid, x int, y int) Grid {
 	if y > 0 {
 		grid = incrementAndCheckFlash(grid, x, y-1)
 	}
-	grid[x][y] = RecentlyFlashed
 	if y < len(grid[0])-1 {
 		grid = incrementAndCheckFlash(grid, x, y+1)
 	}
@@ -118,19 +116,15 @@ func flash(grid Grid, x int, y int) Grid {
 		grid = incrementAndCheckFlash(grid, x+1, y+1)
 	}
 
-	// displayLabel("After Flash", grid[x][y], x, y)
-
 	return grid
 }
 
 func flashGrid(grid Grid) Grid {
 	for x := 0; x < Size; x++ {
 		for y := 0; y < Size; y++ {
-			if grid[x][y] <= PreFlashingNumber {
-				continue
+			if grid[x][y] > PreFlashingNumber {
+				grid = flash(grid, x, y)
 			}
-
-			grid = flash(grid, x, y)
 		}
 	}
 
@@ -205,8 +199,8 @@ func Main() int {
 	days := 0
 	switch star {
 	case core.FirstStar:
-		// days = 100
-		days = 2
+		days = 100
+		// days = 2
 		// days = 1
 	case core.SecondStar:
 		days = 1

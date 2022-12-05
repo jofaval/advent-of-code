@@ -23,25 +23,25 @@ function parseCargo(rawCargo: string): CargoCrane {
   const lastLineLen = lastLine.length;
   const rawCratesLen = rawCrates.length - 1;
 
-  for (let charIndex = 0; charIndex < lastLineLen; charIndex++) {
-    const char = lastLine[charIndex];
+  for (let crateIndex = 0; crateIndex < lastLineLen; crateIndex++) {
+    const index = lastLine[crateIndex];
 
-    if (char === SPACE) {
+    if (index === SPACE) {
       continue;
     }
 
     // evaluate cargo content
     const cargoContent: Crate = [];
 
-    for (let crateIndex = rawCratesLen; crateIndex >= 0; crateIndex--) {
-      const crateChar = rawCrates[crateIndex][charIndex];
+    for (let rowIndex = rawCratesLen; rowIndex >= 0; rowIndex--) {
+      const crateChar = rawCrates[rowIndex][crateIndex];
 
       if (crateChar !== SPACE) {
         cargoContent.push(crateChar);
       }
     }
 
-    cratesMap.set(Number(char), cargoContent);
+    cratesMap.set(Number(index), cargoContent);
   }
 
   return cratesMap;

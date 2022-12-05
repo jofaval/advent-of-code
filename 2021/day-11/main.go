@@ -17,13 +17,15 @@ const (
 	PreFlashingNumber = 9
 	RecentlyFlashed   = 0
 	NotPlaced         = -1
+
+	Size = 10
 )
 
 type Octopus = int
 
-type Row = [10]Octopus
+type Row = [Size]Octopus
 
-type Grid = [10]Row
+type Grid = [Size]Row
 
 func parseContent(content string) Grid {
 	rows := Grid{}
@@ -62,111 +64,97 @@ func mapGrid(grid Grid, callable MapGridCallabe) Grid {
 	return grid
 }
 
-func doesGridHaveOctopusesReadyToFlash(grid Grid) bool {
-	hasFlashesReady := false
-	mapGrid(grid, func(col int, rowIndex int, colIndex int) int {
-		hasFlashesReady = hasFlashesReady || col > PreFlashingNumber
-		return col
-	})
-
-	return hasFlashesReady
-}
-
 func incrementGrid(grid Grid) Grid {
 	return mapGrid(grid, func(col int, rowIndex int, colIndex int) int {
 		return col + 1
 	})
 }
 
-func setFlashAsRecentlyFlashed(grid Grid) Grid {
-	return mapGrid(grid, func(col int, rowIndex int, colIndex int) int {
-		if col > PreFlashingNumber {
-			return RecentlyFlashed
-		}
-
-		return col
-	})
-}
-
-func flashEffect(grid Grid, x int, y int) Grid {
+func incrementAndCheckFlash(grid Grid, x int, y int) Grid {
 	if grid[x][y] == RecentlyFlashed {
 		return grid
 	}
 
 	grid[x][y] = grid[x][y] + 1
+	if grid[x][y] > PreFlashingNumber {
+		grid = flash(grid, x, y)
+		// grid[x][y] = PreFlashingNumber
+	}
 
 	return grid
 }
 
 func flash(grid Grid, x int, y int) Grid {
+	// displayLabel("Before Flash", grid[x][y], x, y)
+
 	// top row
 	if x > 0 && y > 0 {
-		grid = flashEffect(grid, x-1, y-1)
+		grid = incrementAndCheckFlash(grid, x-1, y-1)
 	}
 	if x > 0 {
-		grid = flashEffect(grid, x-1, y)
+		grid = incrementAndCheckFlash(grid, x-1, y)
 	}
 	if x > 0 && y < len(grid[0])-1 {
-		grid = flashEffect(grid, x-1, y+1)
+		grid = incrementAndCheckFlash(grid, x-1, y+1)
 	}
 
 	// middle row
 	if y > 0 {
-		grid = flashEffect(grid, x, y-1)
+		grid = incrementAndCheckFlash(grid, x, y-1)
 	}
 	grid[x][y] = RecentlyFlashed
 	if y < len(grid[0])-1 {
-		grid = flashEffect(grid, x, y+1)
+		grid = incrementAndCheckFlash(grid, x, y+1)
 	}
 
 	// bottom row
 	if x < len(grid)-1 && y > 0 {
-		grid = flashEffect(grid, x+1, y-1)
+		grid = incrementAndCheckFlash(grid, x+1, y-1)
 	}
 	if x < len(grid)-1 {
-		grid = flashEffect(grid, x+1, y)
+		grid = incrementAndCheckFlash(grid, x+1, y)
 	}
 	if x < len(grid)-1 && y < len(grid[0])-1 {
-		grid = flashEffect(grid, x+1, y+1)
+		grid = incrementAndCheckFlash(grid, x+1, y+1)
+	}
+
+	// displayLabel("After Flash", grid[x][y], x, y)
+
+	return grid
+}
+
+func flashGrid(grid Grid) Grid {
+	for x := 0; x < Size; x++ {
+		for y := 0; y < Size; y++ {
+			if grid[x][y] <= PreFlashingNumber {
+				continue
+			}
+
+			grid = flash(grid, x, y)
+		}
 	}
 
 	return grid
 }
 
-func flashIfPossible(grid Grid, firstPass bool) (Grid, int) {
+func countFlashes(grid Grid) int {
 	flashes := 0
-
-	for x, row := range grid {
-		for y, col := range row {
-			if !firstPass && col <= PreFlashingNumber {
-				continue
-			} else if firstPass && col < PreFlashingNumber {
-				continue
-			}
-
-			grid = flash(grid, x, y)
+	mapGrid(grid, func(col, rowIndex, colIndex int) int {
+		if col == RecentlyFlashed {
 			flashes++
 		}
-	}
-
-	return grid, flashes
+		return col
+	})
+	return flashes
 }
 
-func countFlashes(grid Grid, days int) int {
+func evolve(grid Grid, days int) int {
 	flashes := 0
-	newFlashes := 0
 
 	for dayIndex := 0; dayIndex < days; dayIndex++ {
-		grid, newFlashes = flashIfPossible(grid, true)
 		grid = incrementGrid(grid)
-		grid, newFlashes = flashIfPossible(grid, false)
-
-		// while-loop
-		for doesGridHaveOctopusesReadyToFlash(grid) {
-			grid, newFlashes = flashIfPossible(grid, false)
-			flashes += newFlashes
-			grid = setFlashAsRecentlyFlashed(grid)
-		}
+		grid = flashGrid(grid)
+		flashes += countFlashes(grid)
 
 		displayLabel("After step", strconv.Itoa(dayIndex+1)+":")
 		displayGrid(grid)
@@ -224,14 +212,6 @@ func Main() int {
 		days = 1
 	}
 
-	totalFlashes := countFlashes(grid, days)
-
-	switch star {
-	case core.FirstStar:
-		return totalFlashes
-	case core.SecondStar:
-		return 1
-	}
-
-	return -1
+	totalFlashes := evolve(grid, days)
+	return totalFlashes
 }

@@ -4,6 +4,7 @@ There are 100 octopuses arranged neatly in a 10 by 10 grid. Each octopus slowly 
 
 Each octopus has an energy level - your submarine can remotely measure the energy level of each octopus (your puzzle input). For example:
 
+```
 5483143223
 2745854711
 5264556173
@@ -14,14 +15,15 @@ Each octopus has an energy level - your submarine can remotely measure the energ
 6882881134
 4846848554
 5283751526
+```
 
 The energy level of each octopus is a value between 0 and 9. Here, the top-left octopus has an energy level of 5, the bottom-right one has an energy level of 6, and so on.
 
 You can model the energy levels and flashes of light in steps. During a single step, the following occurs:
 
-    First, the energy level of each octopus increases by 1.
-    Then, any octopus with an energy level greater than 9 flashes. This increases the energy level of all adjacent octopuses by 1, including octopuses that are diagonally adjacent. If this causes an octopus to have an energy level greater than 9, it also flashes. This process continues as long as new octopuses keep having their energy level increased beyond 9. (An octopus can only flash at most once per step.)
-    Finally, any octopus that flashed during this step has its energy level set to 0, as it used all of its energy to flash.
+- First, the energy level of each octopus increases by 1.
+- Then, any octopus with an energy level greater than 9 flashes. This increases the energy level of all adjacent octopuses by 1, including octopuses that are diagonally adjacent. If this causes an octopus to have an energy level greater than 9, it also flashes. This process continues as long as new octopuses keep having their energy level increased beyond 9. (An octopus can only flash at most once per step.)
+- Finally, any octopus that flashed during this step has its energy level set to 0, as it used all of its energy to flash.
 
 Adjacent flashes can cause an octopus to flash on a step even if it begins that step with very little energy. Consider the middle octopus with 1 energy in this situation:
 
@@ -300,7 +302,3 @@ After step 100:
 After 100 steps, there have been a total of 1656 flashes.
 
 Given the starting energy levels of the dumbo octopuses in your cavern, simulate 100 steps. How many total flashes are there after 100 steps?
-
-```
-
-```

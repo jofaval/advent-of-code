@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/fatih/color"
 	"jofaval.advent-of-code/2021/core"
 )
 
@@ -99,5 +100,6 @@ func runDay(workingDirectory string, day int) {
 	}
 
 	result := GetDayExecutorFor(day)()
-	fmt.Println("Result:", result)
+	color.New(color.FgGreen).Add(color.Italic).Print("Result: ")
+	color.New(color.FgYellow).Add(color.Bold).Println(result)
 }

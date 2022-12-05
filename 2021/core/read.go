@@ -48,7 +48,7 @@ func GetDayFolderName(day int) string {
 
 func sanitizeContent(content []byte) string {
 	contentAsString := string(content)
-	sanitizedContent := strings.Trim(contentAsString, "\n ")
+	sanitizedContent := strings.TrimRight(contentAsString, "\n ")
 	sanitizedContent = strings.ReplaceAll(sanitizedContent, "\r", "")
 
 	return sanitizedContent

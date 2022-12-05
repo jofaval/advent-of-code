@@ -60,24 +60,39 @@ function parseInput(content: string): Input {
   return [parsedCargo, parsedSteps];
 }
 
-function rearrangeCrates(crane: CargoCrane, steps: RearrangementStep[]) {
+function rearrangeCrates(
+  crane: CargoCrane,
+  steps: RearrangementStep[],
+  crateMover9001: boolean
+) {
   steps.forEach(([quantity, origin, destination]) => {
-    for (let quantityIndex = 0; quantityIndex < quantity; quantityIndex++) {
-      const element = crane.get(origin).pop();
-      crane.get(destination).push(element);
+    const elements = [];
+
+    const originCrate = crane.get(origin);
+    if (crateMover9001) {
+      elements.push(...originCrate.splice(-quantity));
+    } else {
+      for (let quantityIndex = 0; quantityIndex < quantity; quantityIndex++) {
+        elements.push(originCrate.pop());
+      }
     }
+
+    crane.get(destination).push(...elements);
   });
 }
 
 function getTopCratesLetters(
   [crane, steps]: Input,
-  quantity: number = 1
+  /**
+   * The amazing and new fantastic version
+   */
+  crateMover9001: boolean = false
 ): string {
   const letters = [];
 
-  rearrangeCrates(crane, steps);
+  rearrangeCrates(crane, steps, crateMover9001);
   crane.forEach((crate) => {
-    letters.push(...crate.slice(-quantity));
+    letters.push(...crate.slice(-1));
   });
 
   return letters.join("");
@@ -87,18 +102,13 @@ function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
   const parsed = parseInput(content);
 
-  const letters = getTopCratesLetters(parsed);
+  const letters = getTopCratesLetters(parsed, star === "second");
 
-  switch (star) {
-    case "first":
-      return letters;
-    case "second":
-      return letters;
-  }
+  return letters;
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 5, type: "test" });
+  const result = main({ star: "second", day: 5, type: "test" });
   console.log({ result });
 })();

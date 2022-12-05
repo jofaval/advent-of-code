@@ -61,7 +61,9 @@ All files should follow the following structure:
 
 [Back to contents](#contents)
 
-1. [Day 1](./day-1/)
-1. [Day 2](./day-2/)
-1. [Day 3](./day-3/)
-1. [Day 4](./day-4/)
+1. [Day 1](./day-01/)
+1. [Day 2](./day-02/)
+1. [Day 3](./day-03/)
+1. [Day 4](./day-04/)
+1. [Day 5](./day-05/)
+<!-- Next day -->

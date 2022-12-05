@@ -17,10 +17,10 @@ const DEST_DIR = `./day-${paddedDay}`;
  * @param {number} day
  * @returns {void}
  */
-function replaceDay(filename, day) {
+function replaceDay(filename, day, candidate = /§DAY/g) {
   try {
     const fileData = fs.readFileSync(filename, ENCODING);
-    const result = fileData.replace(/§DAY/g, day);
+    const result = fileData.replace(candidate, day);
 
     fs.writeFile(filename, result, ENCODING, function (err) {
       if (err) return console.log(err);
@@ -35,6 +35,11 @@ try {
 
   replaceDay(`${DEST_DIR}/main.ts`, day);
   replaceDay(`${DEST_DIR}/run.sh`, paddedDay);
+  replaceDay(
+    `./README.md`,
+    [`1. [Day ${day}](./day-${paddedDay}/)`, "<!-- Next day -->"].join("\n"),
+    "<!-- Next day -->"
+  );
 
   console.log("File generated at:", DEST_DIR);
 } catch (err) {

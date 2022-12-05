@@ -87,14 +87,14 @@ func flash(grid Grid, x int, y int) Grid {
 	grid[x][y] = RecentlyFlashed
 
 	// top row
-	if x > 0 && y > 0 {
-		grid = incrementAndCheckFlash(grid, x-1, y-1)
-	}
 	if x > 0 {
+		if y > 0 {
+			grid = incrementAndCheckFlash(grid, x-1, y-1)
+		}
 		grid = incrementAndCheckFlash(grid, x-1, y)
-	}
-	if x > 0 && y < len(grid[0])-1 {
-		grid = incrementAndCheckFlash(grid, x-1, y+1)
+		if y < len(grid[0])-1 {
+			grid = incrementAndCheckFlash(grid, x-1, y+1)
+		}
 	}
 
 	// middle row
@@ -106,14 +106,14 @@ func flash(grid Grid, x int, y int) Grid {
 	}
 
 	// bottom row
-	if x < len(grid)-1 && y > 0 {
-		grid = incrementAndCheckFlash(grid, x+1, y-1)
-	}
 	if x < len(grid)-1 {
+		if y > 0 {
+			grid = incrementAndCheckFlash(grid, x+1, y-1)
+		}
 		grid = incrementAndCheckFlash(grid, x+1, y)
-	}
-	if x < len(grid)-1 && y < len(grid[0])-1 {
-		grid = incrementAndCheckFlash(grid, x+1, y+1)
+		if y < len(grid[0])-1 {
+			grid = incrementAndCheckFlash(grid, x+1, y+1)
+		}
 	}
 
 	return grid

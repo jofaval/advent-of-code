@@ -19,9 +19,9 @@ function parseCargo(rawCargo: string): CargoCrane {
 
   const cratesMap: CargoCrane = new Map();
 
-  const lastLine = rawCrates.at(-1);
+  const lastLine = rawCrates.pop();
   const lastLineLen = lastLine.length;
-  const rawCratesLen = rawCrates.length - 1;
+  const rawCratesLen = rawCrates.length;
 
   for (let crateIndex = 0; crateIndex < lastLineLen; crateIndex++) {
     const index = lastLine[crateIndex];
@@ -63,13 +63,13 @@ function parseInput(content: string): Input {
 function rearrangeCrates(
   crane: CargoCrane,
   steps: RearrangementStep[],
-  crateMover9001: boolean
+  isCrateMover9001: boolean
 ) {
   steps.forEach(([quantity, origin, destination]) => {
     const elements = [];
 
     const originCrate = crane.get(origin);
-    if (crateMover9001) {
+    if (isCrateMover9001) {
       elements.push(...originCrate.splice(-quantity));
     } else {
       for (let quantityIndex = 0; quantityIndex < quantity; quantityIndex++) {
@@ -86,11 +86,11 @@ function getTopCratesLetters(
   /**
    * The amazing and new fantastic version
    */
-  crateMover9001: boolean = false
+  isCrateMover9001: boolean = false
 ): string {
   const letters = [];
 
-  rearrangeCrates(crane, steps, crateMover9001);
+  rearrangeCrates(crane, steps, isCrateMover9001);
   crane.forEach((crate) => {
     letters.push(...crate.slice(-1));
   });

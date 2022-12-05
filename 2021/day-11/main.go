@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	star  = core.FirstStar
+	star  = core.SecondStar
 	day   = 11
 	input = core.TestInput
 
@@ -131,30 +131,48 @@ func flashGrid(grid Grid) Grid {
 	return grid
 }
 
-func countFlashes(grid Grid) int {
+func countFlashes(grid Grid) (int, bool) {
 	flashes := 0
+	synchronized := true
+
 	mapGrid(grid, func(col, rowIndex, colIndex int) int {
+		synchronized = synchronized && col == RecentlyFlashed
 		if col == RecentlyFlashed {
 			flashes++
 		}
 		return col
 	})
-	return flashes
+
+	return flashes, synchronized
 }
 
-func evolve(grid Grid, days int) int {
+func evolve(grid Grid, days int, stopWhenSynchronized bool) (int, int) {
 	flashes := 0
+	newFlashes := 0
+	synchronizedStep := 0
+	areSynchronized := false
+
+	if stopWhenSynchronized {
+		days = 1_000_000
+	}
 
 	for dayIndex := 0; dayIndex < days; dayIndex++ {
 		grid = incrementGrid(grid)
 		grid = flashGrid(grid)
-		flashes += countFlashes(grid)
+		newFlashes, areSynchronized = countFlashes(grid)
+		flashes += newFlashes
 
-		displayLabel("After step", strconv.Itoa(dayIndex+1)+":")
-		displayGrid(grid)
+		if stopWhenSynchronized && areSynchronized {
+			synchronizedStep = dayIndex + 1
+			break
+		}
+
+		// Uncomment for the step-by-step tracing
+		// displayLabel("After step", strconv.Itoa(dayIndex+1)+":")
+		// displayGrid(grid)
 	}
 
-	return flashes
+	return flashes, synchronizedStep
 }
 
 func displayLabel(labels ...any) {
@@ -193,19 +211,20 @@ func Main() int {
 
 	grid := parseContent(content)
 
-	displayLabel("Initially, before any step")
-	displayGrid(grid)
+	// Uncomment for the step-by-step tracing
+	// displayLabel("Initially, before any step")
+	// displayGrid(grid)
 
-	days := 0
+	days := 100
+
+	flashes, synchronized := evolve(grid, days, star == core.SecondStar)
+
 	switch star {
 	case core.FirstStar:
-		days = 100
-		// days = 2
-		// days = 1
+		return flashes
 	case core.SecondStar:
-		days = 1
+		return synchronized
 	}
 
-	totalFlashes := evolve(grid, days)
-	return totalFlashes
+	return -1
 }

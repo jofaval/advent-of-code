@@ -1,6 +1,7 @@
 package day$DAY
 
 import (
+	"fmt"
 	"reflect"
 
 	"jofaval.advent-of-code/2021/core"
@@ -27,7 +28,7 @@ func Main() int {
 	})
 
 	result := parseContent(content)
-	println(reflect.TypeOf(result))
+	fmt.Println(reflect.TypeOf(result))
 
 	switch star {
 	case core.FirstStar:

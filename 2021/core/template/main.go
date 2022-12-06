@@ -27,7 +27,7 @@ func Main() int {
 	})
 
 	result := parseContent(content)
-	print(reflect.TypeOf(result))
+	println(reflect.TypeOf(result))
 
 	switch star {
 	case core.FirstStar:

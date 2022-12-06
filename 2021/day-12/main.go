@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	star  = core.SecondStar
+	star  = core.FirstStar
 	day   = 12
-	input = core.ExampleInput
+	input = core.TestInput
 
 	Empty = 0
 	Dot   = 1
@@ -222,6 +222,10 @@ func displayCell(coordinate int) {
 }
 
 func displayPaper(paper Paper) {
+	if input != core.ExampleInput {
+		return
+	}
+
 	fmt.Println()
 	for _, row := range paper {
 		for _, col := range row {

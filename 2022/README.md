@@ -66,4 +66,5 @@ All files should follow the following structure:
 1. [Day 3](./day-03/)
 1. [Day 4](./day-04/)
 1. [Day 5](./day-05/)
+1. [Day 6](./day-06/)
 <!-- Next day -->

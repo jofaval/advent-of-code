@@ -83,24 +83,30 @@ func calculateTotalRisk(risks Risks) int {
 	return totalRisk
 }
 
+func wasCoordinateSelected(risks Risks, x int, y int) bool {
+	for _, coordinate := range risks {
+		if coordinate.x == x && coordinate.y == y {
+			return true
+		}
+	}
+
+	return false
+}
+
+func displayRiskLevel(risks Risks, x int, y int, col int) {
+	if wasCoordinateSelected(risks, x, y) {
+		color.New(color.FgYellow).Add(color.Bold).Print(col)
+	} else {
+		color.New(color.FgHiMagenta).Print(col)
+	}
+	fmt.Print(" ")
+}
+
 func displayCave(cave Cave, risks Risks) {
 	fmt.Println()
 	for x, row := range cave {
 		for y, col := range row {
-			wasSelected := false
-			for _, coordinate := range risks {
-				if coordinate.x == x && coordinate.y == y {
-					wasSelected = true
-					break
-				}
-			}
-
-			if wasSelected {
-				color.New(color.FgYellow).Add(color.Bold).Print(col)
-			} else {
-				color.New(color.FgHiMagenta).Print(col)
-			}
-			fmt.Print(" ")
+			displayRiskLevel(risks, x, y, col)
 		}
 		fmt.Println()
 	}

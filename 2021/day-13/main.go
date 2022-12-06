@@ -134,6 +134,21 @@ func generatePaper(coordinates []Coordinate) Paper {
 		paper[coordinate.x][coordinate.y] = Dot
 	}
 
+	paper = preppendVertically(paper)
+
+	return paper
+}
+
+func preppendVertically(paper Paper) Paper {
+	line := []int{}
+	for _, row := range paper {
+		if len(line) <= 0 {
+			for rowIndex := 0; rowIndex < len(row); rowIndex++ {
+				line = append(line, Empty)
+			}
+		}
+	}
+	paper = append(paper, line)
 	return paper
 }
 
@@ -222,9 +237,9 @@ func displayCell(coordinate int) {
 }
 
 func displayPaper(paper Paper) {
-	if input != core.ExampleInput {
-		return
-	}
+	// if input != core.ExampleInput {
+	// 	return
+	// }
 
 	fmt.Println()
 	for _, row := range paper {
@@ -248,7 +263,7 @@ func Main() int {
 	paper := generatePaper(result.coordinates)
 
 	// Don't use on the real input for optimal speed
-	displayPaper(paper)
+	// displayPaper(paper)
 
 	switch star {
 	case core.FirstStar:

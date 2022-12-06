@@ -146,29 +146,29 @@ func countFlashes(grid Grid) (int, bool) {
 	return flashes, synchronized
 }
 
-func evolve(grid Grid, days int, stopWhenSynchronized bool) (int, int) {
+func evolve(grid Grid, steps int, stopWhenSynchronized bool) (int, int) {
 	flashes := 0
 	newFlashes := 0
 	synchronizedStep := 0
 	areSynchronized := false
 
 	if stopWhenSynchronized {
-		days = 1_000_000
+		steps = 1_000_000
 	}
 
-	for dayIndex := 0; dayIndex < days; dayIndex++ {
+	for stepIndex := 0; stepIndex < steps; stepIndex++ {
 		grid = incrementGrid(grid)
 		grid = flashGrid(grid)
 		newFlashes, areSynchronized = countFlashes(grid)
 		flashes += newFlashes
 
 		if stopWhenSynchronized && areSynchronized {
-			synchronizedStep = dayIndex + 1
+			synchronizedStep = stepIndex + 1
 			break
 		}
 
 		// Uncomment for the step-by-step tracing
-		// displayLabel("After step", strconv.Itoa(dayIndex+1)+":")
+		// displayLabel("After step", strconv.Itoa(stepIndex+1)+":")
 		// displayGrid(grid)
 	}
 
@@ -215,9 +215,9 @@ func Main() int {
 	// displayLabel("Initially, before any step")
 	// displayGrid(grid)
 
-	days := 100
+	steps := 100
 
-	flashes, synchronized := evolve(grid, days, star == core.SecondStar)
+	flashes, synchronized := evolve(grid, steps, star == core.SecondStar)
 
 	switch star {
 	case core.FirstStar:

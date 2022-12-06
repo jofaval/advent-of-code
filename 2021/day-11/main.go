@@ -119,7 +119,7 @@ func flash(grid Grid, x int, y int) Grid {
 	return grid
 }
 
-func flashGrid(grid Grid) Grid {
+func checkFlashGrid(grid Grid) Grid {
 	for x := 0; x < Size; x++ {
 		for y := 0; y < Size; y++ {
 			if grid[x][y] > PreFlashingNumber {
@@ -136,8 +136,9 @@ func countFlashes(grid Grid) (int, bool) {
 	synchronized := true
 
 	mapGrid(grid, func(col, rowIndex, colIndex int) int {
-		synchronized = synchronized && col == RecentlyFlashed
-		if col == RecentlyFlashed {
+		hasFlashed := col == RecentlyFlashed
+		synchronized = synchronized && hasFlashed
+		if hasFlashed {
 			flashes++
 		}
 		return col
@@ -158,7 +159,7 @@ func evolve(grid Grid, steps int, stopWhenSynchronized bool) (int, int) {
 
 	for stepIndex := 0; stepIndex < steps; stepIndex++ {
 		grid = incrementGrid(grid)
-		grid = flashGrid(grid)
+		grid = checkFlashGrid(grid)
 		newFlashes, areSynchronized = countFlashes(grid)
 		flashes += newFlashes
 

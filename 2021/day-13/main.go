@@ -134,7 +134,13 @@ func generatePaper(coordinates []Coordinate) Paper {
 		paper[coordinate.x][coordinate.y] = Dot
 	}
 
-	paper = preppendVertically(paper)
+	if maxHeight%2 == 0 {
+		paper = preppendVertically(paper)
+	}
+
+	if maxWidth%2 == 0 {
+		paper = preppendHorizontally(paper)
+	}
 
 	return paper
 }
@@ -149,6 +155,13 @@ func preppendVertically(paper Paper) Paper {
 		}
 	}
 	paper = append(paper, line)
+	return paper
+}
+
+func preppendHorizontally(paper Paper) Paper {
+	for rowIndex, row := range paper {
+		paper[rowIndex] = append(row, Empty)
+	}
 	return paper
 }
 
@@ -237,10 +250,6 @@ func displayCell(coordinate int) {
 }
 
 func displayPaper(paper Paper) {
-	// if input != core.ExampleInput {
-	// 	return
-	// }
-
 	fmt.Println()
 	for _, row := range paper {
 		for _, col := range row {
@@ -263,7 +272,9 @@ func Main() int {
 	paper := generatePaper(result.coordinates)
 
 	// Don't use on the real input for optimal speed
-	// displayPaper(paper)
+	if input != core.TestInput {
+		displayPaper(paper)
+	}
 
 	switch star {
 	case core.FirstStar:
@@ -272,7 +283,6 @@ func Main() int {
 		paper = fullyFoldPaper(paper, result.folds)
 	}
 
-	// Don't use on the real input for optimal speed
 	displayPaper(paper)
 
 	return getTotalDots(paper)

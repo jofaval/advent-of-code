@@ -3,7 +3,7 @@ package cli
 import (
 	day11 "jofaval.advent-of-code/2021/day-11"
 	// day$DAY "jofaval.advent-of-code/2021/day-$DAY"
-	day12 "jofaval.advent-of-code/2021/day-12"
+	day13 "jofaval.advent-of-code/2021/day-13"
 )
 
 func getDaysExecutors() map[int]func() int {
@@ -11,8 +11,8 @@ func getDaysExecutors() map[int]func() int {
 
 	// Executors linking
 	// daysExecutors[$DAY] = day$DAY.Main
-	daysExecutors[12] = day12.Main
 	daysExecutors[11] = day11.Main
+	daysExecutors[13] = day13.Main
 
 	return daysExecutors
 }

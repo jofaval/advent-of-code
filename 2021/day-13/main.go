@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	star  = core.FirstStar
-	day   = 12
+	star  = core.SecondStar
+	day   = 13
 	input = core.TestInput
 
 	Empty = 0

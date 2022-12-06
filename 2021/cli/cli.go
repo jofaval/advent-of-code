@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 	"jofaval.advent-of-code/2021/core"
@@ -78,16 +79,20 @@ func createDay(workingDirectory string, day int) {
 	core.ReplaceContent(
 		cliDaysConfigFile,
 		"	// day$DAY \"jofaval.advent-of-code/2021/day-$DAY\"",
-		"	// day$DAY \"jofaval.advent-of-code/2021/day-$DAY\""+
-			"\n"+"	day"+paddedDay+" \"jofaval.advent-of-code/2021/day-"+paddedDay+"\"",
+		strings.Join([]string{
+			"	day" + paddedDay + " \"jofaval.advent-of-code/2021/day-" + paddedDay + "\"",
+			"	// day$DAY \"jofaval.advent-of-code/2021/day-$DAY\"",
+		}, "\n"),
 	)
 
 	// map configuration
 	core.ReplaceContent(
 		cliDaysConfigFile,
 		"	// daysExecutors[$DAY] = day$DAY.Main",
-		"	// daysExecutors[$DAY] = day$DAY.Main"+
-			"\n"+"	daysExecutors["+paddedDay+"] = day"+paddedDay+".Main",
+		strings.Join([]string{
+			"	daysExecutors[" + paddedDay + "] = day" + paddedDay + ".Main",
+			"	// daysExecutors[$DAY] = day$DAY.Main",
+		}, "\n"),
 	)
 }
 

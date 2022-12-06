@@ -41,3 +41,12 @@ func ReplaceContent(filename string, candidate string, replacement string) bool 
 
 	return true
 }
+
+func ParseInt(raw string) int {
+	parsed, err := strconv.Atoi(raw)
+	if err != nil {
+		panic(err)
+	}
+
+	return parsed
+}

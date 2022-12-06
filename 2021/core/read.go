@@ -6,17 +6,24 @@ import (
 	"strings"
 )
 
+type Input int
+
 const (
-	ExampleInput = iota
-	TestInput    = iota
-	FirstStar    = iota
-	SecondStar   = iota
+	ExampleInput Input = iota
+	TestInput    Input = iota
+)
+
+type Star int
+
+const (
+	FirstStar  Star = iota
+	SecondStar Star = iota
 )
 
 type AdventOfCodeProps struct {
-	Star  int
+	Star  Star
 	Day   int
-	Input int
+	Input Input
 }
 
 func GetWorkingDirectory() string {
@@ -27,7 +34,7 @@ func GetWorkingDirectory() string {
 	return workingDirectory
 }
 
-func getDataFilename(input int) string {
+func getDataFilename(input Input) string {
 	dataFile := ""
 
 	switch input {

@@ -17,8 +17,13 @@ function isMarkerValid(marker: Marker): boolean {
   return marker.length === new Set(marker).size;
 }
 
-function findMarker(signal: Signal, minSize: number = 4): number {
+function findMarker(signal: Signal, extensiveLookUp: boolean = false): number {
   let marker = [];
+
+  let minSize = 4;
+  if (extensiveLookUp) {
+    minSize = 14;
+  }
 
   const signalLen = signal.length;
   for (let position = 0; position < signalLen; position++) {
@@ -40,18 +45,13 @@ function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
   const parsed = parseInput(content);
 
-  const firstMarkerPosition = findMarker(parsed);
+  const firstMarkerPosition = findMarker(parsed, star === "second");
 
-  switch (star) {
-    case "first":
-      return firstMarkerPosition;
-    case "second":
-      return parsed;
-  }
+  return firstMarkerPosition;
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 6, type: "test" });
+  const result = main({ star: "second", day: 6, type: "test" });
   console.log({ result });
 })();

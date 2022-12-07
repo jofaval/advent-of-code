@@ -1,11 +1,13 @@
 import {
   JUMP_LINE,
+  logDebug,
   MainProps,
+  minReducer,
   readInput,
+  setDebug,
   SPACE,
   sumReducer,
 } from "../__core__";
-import { logDebug, setDebug } from "../__core__/helpers/debug";
 
 const CHANGE_DIRECTORY = "cd";
 const LIST_DIRECTORY = "ls";
@@ -78,8 +80,10 @@ function evaluateRootCommand({
     return currentDirectory;
   }
 
-  // Might not be necessary for now
-  // if (operator === CHANGE_DIRECTORY)
+  // If it's not a change of directory, it's an unknown operation
+  if (operator !== CHANGE_DIRECTORY) {
+    return rootDirectory;
+  }
 
   if (arg === MOVE_UP) {
     return currentDirectory?.parent ?? currentDirectory;
@@ -182,10 +186,7 @@ function getAllDirectoriesWithThreshold({
   threshold,
   under,
 }: GetAllDirectoriesWithThresholdProps): Directory[] {
-  const directories = [];
-  getAllDirectories(root, directories);
-
-  return directories.filter(({ size }) =>
+  return getAllDirectories(root, []).filter(({ size }) =>
     under ? size < threshold : size > threshold
   );
 }
@@ -222,8 +223,7 @@ function getAllFileSizes(root: Directory, fileSizes: number[]): number[] {
 }
 
 function getFolderToFreeSpace(root: Directory): number {
-  const fileSizes = getAllFileSizes(root, []);
-  const totalSize = fileSizes.reduce(sumReducer, 0);
+  const totalSize = getAllFileSizes(root, []).reduce(sumReducer, 0);
 
   const unusedSpace = TOTAL_FILESYSTEM_SPACE - totalSize;
   const requiredSpace = UPDATE_REQUIRED_SPACE - unusedSpace;
@@ -234,19 +234,16 @@ function getFolderToFreeSpace(root: Directory): number {
     under: false,
   });
 
-  return candidateDirectories.reduce((min, directory) => {
-    if (directory.size > min) {
-      return min;
-    }
+  const smallestDirectorySize = candidateDirectories
+    .map(({ size }) => size)
+    .reduce(minReducer, Infinity);
 
-    return directory.size;
-  }, Infinity);
+  return smallestDirectorySize;
 }
 
 function main({ star, day, type }: MainProps) {
-  setDebug(type === "example");
-
   const content = readInput({ star, day, type });
+  setDebug(type === "example");
 
   const root = parseInput(content);
   logDebug("parsed", { root });

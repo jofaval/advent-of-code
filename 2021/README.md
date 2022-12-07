@@ -8,11 +8,22 @@ This time around I'm using Golang.
 
 ## Contents
 
+1. [Installation/Setup](#installationsetup)
 1. [Execute the challenges](#execute-the-challenges)
 1. [CLI - Create a day](#cli---create-a-day)
    1. [Link the execution](#link-the-execution)
 1. [Structure](#structure)
 1. [CLI - Run a challenge(day)](#cli---run-a-challengeday)
+
+## Installation/Setup
+
+[Back to contents](#contents)
+
+Install all the necessary packages:
+
+```bash
+go get ./...
+```
 
 ## Execute the challenges
 

@@ -63,7 +63,7 @@ export function readInput({
 
     data = sanitizedData;
   } catch (_) {
-    return "";
+    data = "";
   }
 
   if (data.trim().length === 0) {

@@ -55,19 +55,22 @@ export function readInput({
   ...readingPathProps
 }: ReadInputProps): string {
   const readingPath = getReadingPath(readingPathProps);
+  let data = "";
 
   try {
-    const data = fs.readFileSync(readingPath, "utf8");
-    const sanitizedData = sanitizeData(data);
+    const content = fs.readFileSync(readingPath, "utf8");
+    const sanitizedData = sanitizeData(content);
 
-    if (!sanitizedData.trim().length) {
-      throw new Error(
-        `Careful there! ${readingPath} was found without any content at all!`
-      );
-    }
-
-    return sanitizedData;
+    data = sanitizedData;
   } catch (_) {
     return "";
   }
+
+  if (data.trim().length === 0) {
+    throw new Error(
+      `Careful there! ${readingPath} was found without any content at all!`
+    );
+  }
+
+  return data;
 }

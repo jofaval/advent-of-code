@@ -21,7 +21,7 @@ function parseCargo(rawCargo: string): CargoCrane {
 
   const lastLine = rawCrates.pop();
   const lastLineLen = lastLine.length;
-  const rawCratesLen = rawCrates.length;
+  const rawCratesLen = rawCrates.length - 1;
 
   for (let crateIndex = 0; crateIndex < lastLineLen; crateIndex++) {
     const index = lastLine[crateIndex];

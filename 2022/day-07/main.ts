@@ -13,6 +13,9 @@ const MOVE_UP = "..";
 const DIRECTORY_COMMAND = "dir";
 const ROOT_ARG = "/";
 
+const TOTAL_FILESYSTEM_SPACE = 70_000_000;
+const UPDATE_REQUIRED_SPACE = 30_000_000;
+
 const ROOT_DIRECTORY: Directory = {
   name: "/",
   parent: null,
@@ -168,22 +171,76 @@ function getAllDirectories(
   return directories;
 }
 
-function getAllDirectoriesUnder(root: System, atMost: number): Directory[] {
+type GetAllDirectoriesWithThresholdProps = {
+  root: System;
+  threshold: number;
+  under: boolean;
+};
+
+function getAllDirectoriesWithThreshold({
+  root,
+  threshold,
+  under,
+}: GetAllDirectoriesWithThresholdProps): Directory[] {
   const directories = [];
   getAllDirectories(root, directories);
 
-  return directories.filter(({ size }) => size < atMost);
+  return directories.filter(({ size }) =>
+    under ? size < threshold : size > threshold
+  );
 }
 
 type GetSumDirectoriesProps = {
-  atMost: number;
+  threshold: number;
   root: System;
 };
 
-function getSumDirectories({ atMost, root }: GetSumDirectoriesProps): number {
-  return getAllDirectoriesUnder(root, atMost)
-    .map(({ size }) => size)
-    .reduce(sumReducer, 0);
+function getTotalSizeOfDirs(dirs: Directory[]): number {
+  return dirs.map(({ size }) => size).reduce(sumReducer, 0);
+}
+
+function getSumDirectories({
+  threshold,
+  root,
+}: GetSumDirectoriesProps): number {
+  return getTotalSizeOfDirs(
+    getAllDirectoriesWithThreshold({ root, threshold, under: false })
+  );
+}
+
+function getAllFileSizes(root: Directory, fileSizes: number[]): number[] {
+  root.content.forEach((file) => {
+    // is not a directory
+    if (!("content" in file)) {
+      return fileSizes.push(file.size);
+    }
+
+    getAllFileSizes(file, fileSizes);
+  });
+
+  return fileSizes;
+}
+
+function getFolderToFreeSpace(root: Directory): number {
+  const fileSizes = getAllFileSizes(root, []);
+  const totalSize = fileSizes.reduce(sumReducer, 0);
+
+  const unusedSpace = TOTAL_FILESYSTEM_SPACE - totalSize;
+  const requiredSpace = UPDATE_REQUIRED_SPACE - unusedSpace;
+
+  const candidateDirectories = getAllDirectoriesWithThreshold({
+    threshold: requiredSpace,
+    root,
+    under: false,
+  });
+
+  return candidateDirectories.reduce((min, directory) => {
+    if (directory.size > min) {
+      return min;
+    }
+
+    return directory.size;
+  }, Infinity);
 }
 
 function main({ star, day, type }: MainProps) {
@@ -197,18 +254,16 @@ function main({ star, day, type }: MainProps) {
   calculateDirectoriesSize(root);
   logDebug("with sizes", { root });
 
-  const power = getSumDirectories({ atMost: 100_000, root });
-
   switch (star) {
     case "first":
-      return power;
+      return getSumDirectories({ threshold: 100_000, root });
     case "second":
-      return root;
+      return getFolderToFreeSpace(root);
   }
 }
 
 // entrypoint
 (() => {
-  const result = main({ star: "first", day: 7, type: "test" });
+  const result = main({ star: "second", day: 7, type: "test" });
   console.log({ result });
 })();

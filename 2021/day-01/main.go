@@ -1,14 +1,13 @@
 package day1
 
 import (
-	"math"
 	"strings"
 
 	"jofaval.advent-of-code/2021/core"
 )
 
 const (
-	star  = core.FirstStar
+	star  = core.SecondStar
 	day   = 1
 	input = core.TestInput
 )
@@ -23,15 +22,35 @@ func parseContent(content string) Input {
 	return numbers
 }
 
-func numberOfIncreasingTimes(numbers []int, prevSize int) int {
-	times := 0
-	prev := math.MaxInt
+func isVectorIncreasing(prev []int, current []int, minSize int) bool {
+	if len(prev) < minSize || len(current) < minSize {
+		return false
+	}
 
-	for _, current := range numbers {
-		if current > prev {
+	return core.SumArray(prev) < core.SumArray(current)
+}
+
+func appendNumberToVector(vector []int, number int, maxSize int) []int {
+	vector = append(vector, number)
+	if len(vector) > maxSize {
+		vector = vector[1:]
+	}
+	return vector
+}
+
+func numberOfIncreasingTimes(numbers []int, comparisonSize int) int {
+	times := 0
+	prev, current := []int{}, []int{}
+
+	for _, number := range numbers {
+		current = appendNumberToVector(current, number, comparisonSize)
+
+		increases := isVectorIncreasing(prev, current, comparisonSize)
+		if increases {
 			times++
 		}
-		prev = current
+
+		prev = appendNumberToVector(prev, number, comparisonSize)
 	}
 
 	return times
@@ -46,13 +65,13 @@ func Main() int {
 
 	numbers := parseContent(content)
 
-	prevSize := 0
+	comparisonSize := 0
 	switch star {
 	case core.FirstStar:
-		prevSize = 1
+		comparisonSize = 1
 	case core.SecondStar:
-		prevSize = 3
+		comparisonSize = 3
 	}
 
-	return numberOfIncreasingTimes(numbers, prevSize)
+	return numberOfIncreasingTimes(numbers, comparisonSize)
 }

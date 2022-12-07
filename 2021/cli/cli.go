@@ -98,6 +98,7 @@ func createDay(workingDirectory string, day int) {
 
 func runDay(workingDirectory string, day int) {
 	fmt.Println("Attempting to run day", day)
+	fmt.Println()
 
 	dayFolder := filepath.Join(workingDirectory, core.GetDayFolderName(day))
 	if _, err := os.Stat(dayFolder); errors.Is(err, os.ErrNotExist) {
@@ -105,6 +106,8 @@ func runDay(workingDirectory string, day int) {
 	}
 
 	result := GetDayExecutorFor(day)()
+
+	fmt.Println()
 	color.New(color.FgGreen).Add(color.Italic).Print("Result: ")
 	color.New(color.FgYellow).Add(color.Bold).Println(result)
 }

@@ -146,7 +146,6 @@ func Main() int {
 	})
 
 	players := parseContent(content)
-
 	result := play(players)
 
 	switch star {

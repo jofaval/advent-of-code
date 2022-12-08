@@ -42,6 +42,7 @@ try {
   );
 
   console.log("File generated at:", DEST_DIR);
+  console.log("cd", DEST_DIR);
 } catch (err) {
   console.error(err);
 }

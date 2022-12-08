@@ -15,70 +15,63 @@ enum Direction {
   Left = "left",
 }
 
-function toEdge(
-  grid: Input,
-  x: number,
-  y: number,
-  direction: Direction
-): number[] {
+type GetEdgeProps = {
+  grid: Input;
+  x: number;
+  y: number;
+};
+
+function getTopEdge({ grid, x, y }: GetEdgeProps): TreeHeight[] {
   const elements = [];
-  switch (direction) {
-    case Direction.Top:
-      for (let index = x - 1; x > 0; index--) {
-        if (!grid[index]) {
-          break;
-        }
-        elements.push(grid[index][y]);
-      }
-      return elements;
-    case Direction.Right:
-      return grid[x].slice(y + 1);
-    case Direction.Bottom:
-      const rows = grid.length;
-      for (let index = x + 1; x < rows + 1; index++) {
-        if (!grid[index]) {
-          break;
-        }
-        elements.push(grid[index][y]);
-      }
-      return elements;
-    case Direction.Left:
-      return grid[x].slice(0, y).reverse();
+  for (let index = x - 1; x > 0; index--) {
+    if (!grid[index]) {
+      break;
+    }
+    elements.push(grid[index][y]);
   }
+  return elements;
 }
 
-function isHigher(current: number, rest: number[]): boolean {
+function getBottomEdge({ grid, x, y }: GetEdgeProps): TreeHeight[] {
+  const elements = [];
+  for (let index = x + 1; x < grid.length + 1; index++) {
+    if (!grid[index]) {
+      break;
+    }
+    elements.push(grid[index][y]);
+  }
+  return elements;
+}
+
+function getLeftEdge({ grid, x, y }: GetEdgeProps): TreeHeight[] {
+  return grid[x].slice(0, y).reverse();
+}
+
+function getRightEdge({ grid, x, y }: GetEdgeProps): TreeHeight[] {
+  return grid[x].slice(y + 1);
+}
+
+const EdgeDiscriminationDict = {
+  [Direction.Top]: getTopEdge,
+  [Direction.Right]: getRightEdge,
+  [Direction.Bottom]: getBottomEdge,
+  [Direction.Left]: getLeftEdge,
+} as const;
+
+function isHigher(current: TreeHeight, rest: TreeHeight[]): boolean {
   return rest.every((tree) => tree < current);
 }
 
 type CoordinatesVisibility = [boolean, boolean, boolean, boolean];
 
-function isVisible(
-  grid: Input,
-  row: number,
-  col: number
-): CoordinatesVisibility {
-  const current = grid[row][col];
-
-  const topVisible = isHigher(current, toEdge(grid, row, col, Direction.Top));
-  const rightVisible = isHigher(
-    current,
-    toEdge(grid, row, col, Direction.Right)
-  );
-  const bottomVisible = isHigher(
-    current,
-    toEdge(grid, row, col, Direction.Bottom)
-  );
-  const leftVisible = isHigher(current, toEdge(grid, row, col, Direction.Left));
-
-  return [topVisible, rightVisible, bottomVisible, leftVisible];
+function isVisible(props: GetEdgeProps): CoordinatesVisibility {
+  return Object.values(EdgeDiscriminationDict).map((getEdge) =>
+    isHigher(props.grid[props.x][props.y], getEdge(props))
+  ) as CoordinatesVisibility;
 }
 
 function getGridSize(grid: Input): { width: number; height: number } {
-  return {
-    width: grid.length,
-    height: grid[0].length,
-  };
+  return { width: grid.length, height: grid[0].length };
 }
 
 function mapGrid(
@@ -89,7 +82,9 @@ function mapGrid(
 
   for (let x = 1; x < width - 1; x++) {
     for (let y = 1; y < height - 1; y++) {
-      const visible = isVisible(grid, x, y);
+      const visible = isVisible({ grid, x, y });
+      if (!visible.some(Boolean)) continue;
+
       callback(visible, x, y);
     }
   }
@@ -97,19 +92,19 @@ function mapGrid(
 
 function countVisibleTrees(grid: Input): number {
   const { width, height } = getGridSize(grid);
-  // minus four because of the collision corners
-  let visibleTrees = Math.round(width * 2 + (height * 2 - 4));
 
-  mapGrid(grid, (visibility) => {
-    if (visibility.some(Boolean)) {
-      visibleTrees++;
-    }
-  });
+  const collisionCorners = 4;
+  let visibleTrees = Math.round(width * 2 + (height * 2 - collisionCorners));
+
+  mapGrid(grid, () => visibleTrees++);
 
   return visibleTrees;
 }
 
-function nonBlockingTreesScore(current: number, view: number[]): number {
+function getNonBlockingTreesView(
+  current: TreeHeight,
+  view: TreeHeight[]
+): number {
   let nonBlocking = 0;
 
   for (let index = 0; index < view.length; index++) {
@@ -123,39 +118,23 @@ function nonBlockingTreesScore(current: number, view: number[]): number {
   return Math.max(1, nonBlocking);
 }
 
-function getScenicScore(grid: Input, row: number, col: number): number {
-  const current = grid[row][col];
-
-  const top = nonBlockingTreesScore(
-    current,
-    toEdge(grid, row, col, Direction.Top)
+function getScenicScore(props: GetEdgeProps): number {
+  return Object.values(EdgeDiscriminationDict).reduce(
+    (prev, getEdge) =>
+      prev *
+      getNonBlockingTreesView(props.grid[props.x][props.y], getEdge(props)),
+    1
   );
-  const right = nonBlockingTreesScore(
-    current,
-    toEdge(grid, row, col, Direction.Right)
-  );
-  const bottom = nonBlockingTreesScore(
-    current,
-    toEdge(grid, row, col, Direction.Bottom)
-  );
-  const left = nonBlockingTreesScore(
-    current,
-    toEdge(grid, row, col, Direction.Left)
-  );
-
-  return top * right * bottom * left;
 }
 
 function getMostScenicTree(grid: Input): number {
   let mostScenicScore = -Infinity;
 
-  mapGrid(grid, (visibility, x, y) => {
-    if (visibility.some(Boolean)) {
-      const currentScore = getScenicScore(grid, x, y);
+  mapGrid(grid, (_, x, y) => {
+    const currentScore = getScenicScore({ grid, x, y });
 
-      if (currentScore > mostScenicScore) {
-        mostScenicScore = currentScore;
-      }
+    if (currentScore > mostScenicScore) {
+      mostScenicScore = currentScore;
     }
   });
 

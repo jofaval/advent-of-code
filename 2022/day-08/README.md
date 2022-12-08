@@ -82,4 +82,4 @@ Consider each tree on your map. **`What is the highest scenic score possible for
 
 Your puzzle answer was `209880`.
 
-Both parts of this puzzle are complete! They provide two gold stars: **\*\***
+**Both parts of this puzzle are complete! They provide two gold stars: \*\***

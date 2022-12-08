@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	star  = core.FirstStar
+	star  = core.SecondStar
 	day   = 6
 	input = core.TestInput
 
@@ -26,7 +26,6 @@ func parseContent(content string) Lanternfishes {
 
 	for _, fish := range strings.Split(content, ",") {
 		day := core.ParseInt(fish)
-
 		fishes[day]++
 	}
 

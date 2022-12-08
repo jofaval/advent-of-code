@@ -46,24 +46,16 @@ function executeCommand(command) {
 }
 
 /**
- * @param {string} day
- * @returns {string}
- */
-function generateRunDayCommand(day) {
-  return `node ./dist/day-${day}/main.js`;
-}
-
-/**
  * @returns {void}
  */
 function entry() {
   console.log("Executing script...");
   console.log();
 
-  const params = parseParams();
-  const command = generateRunDayCommand(params.day);
+  const { day } = parseParams();
 
-  executeCommand(command);
+  executeCommand(`pnpm run build:day ${day}`);
+  executeCommand(`node ./dist/day-${day}/main.js`);
 }
 
 (() => {

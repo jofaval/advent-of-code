@@ -5,6 +5,7 @@ Done with Typescript at first
 ## Contents
 
 1. [Installation/Setup](#installationsetup)
+1. [Run a challenge](#run-a-challenge)
 1. [Create from template](#create-from-template)
 1. [Structure](#structure)
 1. [Challenges](#challenges)
@@ -21,7 +22,17 @@ If you decide to run this project, you'll be needing to build typescript.
 I'm running the following command on a parallel terminal:
 
 ```bash
-pnpm run watch:ts
+pnpm run watch:ts # or npm or yarn
+```
+
+## Run a challenge
+
+[Back to contents](#contents)
+
+You may want to directly execute a day, you can do so by executing the `run` script, yes, it's a redundant naming, sorry :/.
+
+```bash
+pnpm run run [Day] # or npm or yarn
 ```
 
 ## Create from template

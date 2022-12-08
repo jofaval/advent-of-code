@@ -1,4 +1,4 @@
-import { MainProps, readInput } from "../__core__";
+import { BENCHMARK_ID, MainProps, readInput } from "../__core__";
 
 type Input = any;
 
@@ -20,6 +20,10 @@ function main({ star, day, type }: MainProps) {
 
 // entrypoint
 (() => {
+  console.time(BENCHMARK_ID);
+
   const result = main({ star: "first", day: §DAY, type: "example" });
   console.log({ result });
+  
+  console.timeEnd(BENCHMARK_ID);
 })();

@@ -1,4 +1,10 @@
-import { JUMP_LINE, MainProps, readInput } from "../__core__";
+import {
+  BENCHMARK_ID,
+  JUMP_LINE,
+  MainProps,
+  maxReducer,
+  readInput,
+} from "../__core__";
 
 type TreeHeight = number;
 
@@ -58,15 +64,22 @@ const EdgeDiscriminationDict = {
   [Direction.Left]: getLeftEdge,
 } as const;
 
-function isHigher(current: TreeHeight, rest: TreeHeight[]): boolean {
-  return rest.every((tree) => tree < current);
+function isHigher(current: TreeHeight, rest: TreeHeight[]): [boolean, number] {
+  let visibleTrees = 0;
+
+  const nonBlocked = rest.every((tree) => {
+    visibleTrees++;
+    return tree < current;
+  });
+
+  return [nonBlocked, Math.max(1, visibleTrees)];
 }
 
 type CoordinatesVisibility = [boolean, boolean, boolean, boolean];
 
-function isVisible(props: GetEdgeProps): CoordinatesVisibility {
-  return Object.values(EdgeDiscriminationDict).map((getEdge) =>
-    isHigher(props.grid[props.x][props.y], getEdge(props))
+function isVisible({ grid, x, y }: GetEdgeProps): CoordinatesVisibility {
+  return Object.values(EdgeDiscriminationDict).map(
+    (getEdge) => isHigher(grid[x][y], getEdge({ grid, x, y }))[0]
   ) as CoordinatesVisibility;
 }
 
@@ -101,44 +114,21 @@ function countVisibleTrees(grid: Input): number {
   return visibleTrees;
 }
 
-function getNonBlockingTreesView(
-  current: TreeHeight,
-  view: TreeHeight[]
-): number {
-  let nonBlocking = 0;
-
-  for (let index = 0; index < view.length; index++) {
-    nonBlocking++;
-
-    if (current <= view[index]) {
-      break;
-    }
-  }
-
-  return Math.max(1, nonBlocking);
-}
-
-function getScenicScore(props: GetEdgeProps): number {
+function getScenicScore({ grid, x, y }: GetEdgeProps): number {
   return Object.values(EdgeDiscriminationDict).reduce(
-    (prev, getEdge) =>
-      prev *
-      getNonBlockingTreesView(props.grid[props.x][props.y], getEdge(props)),
+    (prev, getEdge) => prev * isHigher(grid[x][y], getEdge({ grid, x, y }))[1],
     1
   );
 }
 
 function getMostScenicTree(grid: Input): number {
-  let mostScenicScore = -Infinity;
+  const scenicScores = [];
 
   mapGrid(grid, (_, x, y) => {
-    const currentScore = getScenicScore({ grid, x, y });
-
-    if (currentScore > mostScenicScore) {
-      mostScenicScore = currentScore;
-    }
+    scenicScores.push(getScenicScore({ grid, x, y }));
   });
 
-  return mostScenicScore;
+  return scenicScores.reduce(maxReducer);
 }
 
 function main({ star, day, type }: MainProps) {
@@ -155,6 +145,10 @@ function main({ star, day, type }: MainProps) {
 
 // entrypoint
 (() => {
+  console.time(BENCHMARK_ID);
+
   const result = main({ star: "second", day: 8, type: "test" });
   console.log({ result });
+
+  console.timeEnd(BENCHMARK_ID);
 })();

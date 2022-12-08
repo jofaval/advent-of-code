@@ -6,6 +6,7 @@
 	},
 	"scripts": {
 		"watch:ts": "tsc -w -p .",
+		"build:ts": "tsc -p .",
 		"create": "node ./scripts/createDay.js"
 	}
 }

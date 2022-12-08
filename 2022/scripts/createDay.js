@@ -1,16 +1,29 @@
 const ENCODING = "utf8";
 
-const day = process.argv.at(-1);
+/**
+ * @returns {{
+ *   day: string
+ * }}
+ */
+function parseParams() {
+  const params = {};
 
-if (isNaN(day)) return -1;
+  const rawParams = process.argv.slice(2);
+  if (rawParams.length !== 1) {
+    throw new Error(
+      "One param is required for this script, the day, a positive int"
+    );
+  }
 
-const paddedDay = day.padStart(2, "0");
+  const parsedDay = parseInt(rawParams[0]);
+  if (isNaN(parsedDay)) {
+    throw new Error("The day must be a positive int");
+  }
 
-const fse = require("fs-extra");
-const fs = require("fs");
+  params.day = parsedDay.toString().padStart(2, "0");
 
-const SRC_DIR = "./__core__/__template__";
-const DEST_DIR = `./day-${paddedDay}`;
+  return params;
+}
 
 /**
  * @param {string} filename
@@ -18,6 +31,8 @@ const DEST_DIR = `./day-${paddedDay}`;
  * @returns {void}
  */
 function replaceDay(filename, day, candidate = /§DAY/g) {
+  const fs = require("fs");
+
   try {
     const fileData = fs.readFileSync(filename, ENCODING);
     const result = fileData.replace(candidate, day);
@@ -30,19 +45,51 @@ function replaceDay(filename, day, candidate = /§DAY/g) {
   }
 }
 
-try {
-  fse.copySync(SRC_DIR, DEST_DIR, { overwrite: true | false });
+/**
+ * @param {string} origin
+ * @param {string} destination
+ * @param {string} paddedDay
+ * @returns {void}
+ */
+function copyDirectory(origin, destination, paddedDay) {
+  const fse = require("fs-extra");
 
-  replaceDay(`${DEST_DIR}/main.ts`, day);
-  replaceDay(`${DEST_DIR}/run.sh`, paddedDay);
-  replaceDay(
-    `./README.md`,
-    [`1. [Day ${day}](./day-${paddedDay}/)`, "<!-- Next day -->"].join("\n"),
-    "<!-- Next day -->"
-  );
+  const day = parseInt(paddedDay);
 
-  console.log("File generated at:", DEST_DIR);
-  console.log("cd", DEST_DIR);
-} catch (err) {
-  console.error(err);
+  try {
+    fse.copySync(origin, destination, { overwrite: true | false });
+
+    replaceDay(`${destination}/main.ts`, day);
+    replaceDay(`${destination}/run.sh`, paddedDay);
+
+    replaceDay(
+      `./README.md`,
+      [`1. [Day ${day}](./day-${paddedDay}/)`, "<!-- Next day -->"].join("\n"),
+      "<!-- Next day -->"
+    );
+
+    console.log("File generated at:", destination);
+    console.log("cd", destination);
+  } catch (err) {
+    console.error(err);
+  }
 }
+
+/**
+ * @returns {void}
+ */
+function entry() {
+  console.log("Executing script...");
+  console.log();
+
+  const { day: paddedDay } = parseParams();
+
+  const origin = "./__core__/__template__";
+  const destination = `./day-${paddedDay}`;
+
+  copyDirectory(origin, destination, paddedDay);
+}
+
+(() => {
+  entry();
+})();

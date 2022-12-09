@@ -1,5 +1,6 @@
 import {
   BENCHMARK_ID,
+  logger,
   JUMP_LINE,
   MainProps,
   readInput,
@@ -34,10 +35,6 @@ type Input = {
   motions: Motion[];
 };
 
-// TODO: make grid extensible?
-// TODO: make it compute in memory only? no grid whatsoever,
-// just a list, or set even, of visited coordinates, and get the size of that
-
 function parseMotions(content: string): Motion[] {
   return content.split(JUMP_LINE).map((raw) => {
     const [direction, steps] = raw.split(SPACE);
@@ -69,22 +66,35 @@ function moveHead(head: Coordinates, direction: Direction) {
 
 type IsAdjacentProps = Omit<Input, "motions" | "visited">;
 
-function isAdjacent({ head, tail }: IsAdjacentProps): boolean {
-  const rowDifference =
-    Math.max(head.row, tail.row) - Math.min(head.row, tail.row);
-  const colDifference =
-    Math.max(head.col, tail.col) - Math.min(head.col, tail.col);
-
-  return rowDifference <= 1 && colDifference <= 1;
+function absoluteDifference(...numbers: number[]): number {
+  const abs = numbers.map(Math.abs);
+  return Math.max(...abs) - Math.min(...abs);
 }
+
+type IsAdjacentResponse = {
+  adjacent: boolean;
+  difference: number;
+};
+
+function isAdjacent({ head, tail }: IsAdjacentProps): IsAdjacentResponse {
+  const rowDifference = absoluteDifference(head.row, tail.row);
+  const colDifference = absoluteDifference(head.col, tail.col);
+
+  return {
+    adjacent: rowDifference <= 1 && colDifference <= 1,
+    difference: rowDifference + colDifference,
+  };
+}
+
+type GetVariationsResponse = {
+  rows: number[];
+  cols: number[];
+};
 
 function getVariations(
   tail: Tail,
   direction: Direction
-): {
-  rowVariations: number[];
-  colVariations: number[];
-} {
+): GetVariationsResponse {
   // vertical movement
   const top = tail.row - 1;
   const middle = tail.row;
@@ -95,28 +105,16 @@ function getVariations(
   const center = tail.col;
   const right = tail.col + 1;
 
-  let rowVariations: number[], colVariations: number[];
-
   switch (direction) {
     case Direction.RIGHT:
-      rowVariations = [middle, top, bottom];
-      colVariations = [right];
-      break;
+      return { rows: [middle, top, bottom], cols: [right] };
     case Direction.LEFT:
-      rowVariations = [middle, top, bottom];
-      colVariations = [left];
-      break;
+      return { rows: [middle, top, bottom], cols: [left] };
     case Direction.UP:
-      rowVariations = [top];
-      colVariations = [center, left, right];
-      break;
+      return { rows: [top], cols: [center, left, right] };
     case Direction.DOWN:
-      rowVariations = [bottom];
-      colVariations = [center, left, right];
-      break;
+      return { rows: [bottom], cols: [center, left, right] };
   }
-
-  return { rowVariations, colVariations };
 }
 
 type MoveTailProps = IsAdjacentProps & {
@@ -124,21 +122,25 @@ type MoveTailProps = IsAdjacentProps & {
 };
 
 function moveTail({ head, tail, direction }: MoveTailProps) {
-  const commonProps = { head };
+  if (isAdjacent({ head, tail }).adjacent) return;
 
-  if (isAdjacent({ ...commonProps, tail })) return;
+  const { rows, cols } = getVariations(tail, direction);
 
-  const { rowVariations, colVariations } = getVariations(tail, direction);
+  const lowest = { difference: Infinity, coordinates: { ...tail } };
 
-  for (const row of rowVariations) {
-    for (const col of colVariations) {
-      if (!isAdjacent({ ...commonProps, tail: { row, col } })) continue;
+  for (const row of rows) {
+    for (const col of cols) {
+      const { adjacent, difference } = isAdjacent({ head, tail: { row, col } });
 
-      tail.row = row;
-      tail.col = col;
-      return;
+      if (!adjacent || difference > lowest.difference) continue;
+
+      lowest.coordinates = { row, col };
+      lowest.difference = difference;
     }
   }
+
+  tail.row = lowest.coordinates.row;
+  tail.col = lowest.coordinates.col;
 }
 
 function serializeTail(tail: Tail): string {
@@ -156,9 +158,13 @@ function evaluateStep({
   motion: { direction, steps },
   tail,
 }: EvaluateStepProps): void {
+  console.log({ motion: { direction, steps }, head, tail });
+
   for (let step = 0; step < steps; step++) {
     moveHead(head, direction);
     moveTail({ head, tail, direction });
+    console.log({ motion: { direction, step }, head, tail });
+
     visited.add(serializeTail(tail));
   }
 }
@@ -180,7 +186,7 @@ function main({ star, day, type }: MainProps) {
 
   const { visited, head, motions, tail } = parseInput(content);
 
-  const visitedPositions = simulateSteps({
+  const totalVisitedPositions = simulateSteps({
     visited,
     head,
     motions,
@@ -189,18 +195,22 @@ function main({ star, day, type }: MainProps) {
 
   switch (star) {
     case "first":
-      return visitedPositions;
+      return totalVisitedPositions;
     case "second":
-      return visitedPositions;
+      return totalVisitedPositions;
   }
 }
 
 // entrypoint
 (() => {
   console.time(BENCHMARK_ID);
+  const { empty, reset, clear } = logger();
 
-  const result = main({ star: "first", day: 9, type: "test" });
+  const result = main({ star: "first", day: 9, type: "example" });
+  clear();
   console.log({ result });
 
+  reset();
   console.timeEnd(BENCHMARK_ID);
+  empty();
 })();

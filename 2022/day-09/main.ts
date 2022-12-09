@@ -1,17 +1,10 @@
 import {
   BENCHMARK_ID,
-  isDebug,
   JUMP_LINE,
-  logDebug,
   MainProps,
   readInput,
-  setDebug,
   SPACE,
-  sumReducer,
 } from "../__core__";
-
-const VISITED = "#";
-const DEFAULT = ".";
 
 type Coordinates = {
   row: number;
@@ -21,8 +14,6 @@ type Coordinates = {
 type Tail = Coordinates;
 
 type Head = Coordinates;
-
-type Grid = string[][];
 
 enum Direction {
   UP = "U",
@@ -37,57 +28,15 @@ type Motion = {
 };
 
 type Input = {
-  grid: Grid;
+  visited: Set<string>;
   head: Head;
   tail: Tail;
   motions: Motion[];
 };
 
-/**
- * It creates the maximum possible grid size
- */
-function getGridSize(motions: Motion[]): { width: number; height: number } {
-  // TODO: make grid extensible?
-  // TODO: make it compute in memory only? no grid whatsoever,
-  // just a list, or set even, of visited coordinates, and get the size of that
-
-  let width = [];
-  let height = [];
-
-  motions.forEach((motion) => {
-    switch (motion.direction) {
-      case Direction.UP:
-        height.push(motion.steps + 1);
-        break;
-      case Direction.RIGHT:
-        width.push(motion.steps + 1);
-        break;
-    }
-  });
-
-  return { width: width.reduce(sumReducer), height: height.reduce(sumReducer) };
-}
-
-function parseGrid(motions: Motion[]): Grid {
-  const { width, height } = getGridSize(motions);
-
-  const grid = [];
-
-  for (let index = 0; index < height; index++) {
-    const row = DEFAULT.repeat(width).split("");
-    grid.push(row);
-  }
-
-  return grid;
-}
-
-function parseHead(grid: Grid): Head {
-  return { row: grid.length - 1, col: 0 };
-}
-
-function parseTail(grid: Grid): Tail {
-  return { row: grid.length - 1, col: 0 };
-}
+// TODO: make grid extensible?
+// TODO: make it compute in memory only? no grid whatsoever,
+// just a list, or set even, of visited coordinates, and get the size of that
 
 function parseMotions(content: string): Motion[] {
   return content.split(JUMP_LINE).map((raw) => {
@@ -98,11 +47,11 @@ function parseMotions(content: string): Motion[] {
 
 function parseInput(content: string): Input {
   const motions = parseMotions(content);
-  const grid = parseGrid(motions);
-  const head = parseHead(grid);
-  const tail = parseTail(grid);
+  const visited = new Set<string>();
+  const head = { row: 0, col: 0 };
+  const tail = { row: 0, col: 0 };
 
-  return { grid, head, tail, motions };
+  return { visited, head, tail, motions };
 }
 
 function moveHead(head: Coordinates, direction: Direction) {
@@ -118,19 +67,9 @@ function moveHead(head: Coordinates, direction: Direction) {
   }
 }
 
-type IsAdjacentProps = Omit<Input, "motions">;
+type IsAdjacentProps = Omit<Input, "motions" | "visited">;
 
-function isAdjacent({ grid, head, tail }: IsAdjacentProps): boolean {
-  // rows boundaries
-  if (tail.row >= grid.length || tail.row < 0) {
-    return false;
-  }
-
-  // cols boundaries
-  if (tail.col >= grid[0].length || tail.col < 0) {
-    return false;
-  }
-
+function isAdjacent({ head, tail }: IsAdjacentProps): boolean {
   const rowDifference =
     Math.max(head.row, tail.row) - Math.min(head.row, tail.row);
   const colDifference =
@@ -184,9 +123,8 @@ type MoveTailProps = IsAdjacentProps & {
   direction: Direction;
 };
 
-function moveTail({ grid, head, tail, direction }: MoveTailProps) {
-  const commonProps = { grid, head };
-  grid[tail.row][tail.col] = VISITED;
+function moveTail({ head, tail, direction }: MoveTailProps) {
+  const commonProps = { head };
 
   if (isAdjacent({ ...commonProps, tail })) return;
 
@@ -203,93 +141,47 @@ function moveTail({ grid, head, tail, direction }: MoveTailProps) {
   }
 }
 
-type EvaluateStepProps = IsAdjacentProps & {
-  motion: Motion;
-};
+function serializeTail(tail: Tail): string {
+  return [tail.row, tail.col].join();
+}
+
+type EvaluateStepProps = IsAdjacentProps &
+  Pick<Input, "visited"> & {
+    motion: Motion;
+  };
 
 function evaluateStep({
-  grid,
+  visited,
   head,
   motion: { direction, steps },
   tail,
-}: EvaluateStepProps): Grid {
+}: EvaluateStepProps): void {
   for (let step = 0; step < steps; step++) {
     moveHead(head, direction);
-    moveTail({ grid, head, tail, direction });
-
-    grid[tail.row][tail.col] = VISITED;
-    displayGrid({ grid, head, tail }, `${direction}:${step + 1}/${steps}`);
+    moveTail({ head, tail, direction });
+    visited.add(serializeTail(tail));
   }
-
-  return;
 }
 
-function displayGrid(
-  { grid, head, tail }: IsAdjacentProps,
-  ...labels: any[]
-): void {
-  if (isDebug()) {
-    return;
-  }
+function simulateSteps({ visited, head, tail, motions }: Input): number {
+  // starting position
+  visited.add(serializeTail(tail));
 
-  let log: string[] = [];
-
-  grid.forEach((row, rowIndex) => {
-    const rowLog = [];
-    row.forEach((col, colIndex) => {
-      let value = col;
-
-      if (head.row === rowIndex && head.col === colIndex) {
-        value = "H";
-      } else if (tail.row === rowIndex && tail.col === colIndex) {
-        value = "T";
-      }
-
-      rowLog.push(value);
-    });
-    log.push(rowLog.join(" "));
-  });
-
-  logDebug(...labels, { head, tail });
-  logDebug([log.join("\n"), ""].join("\n"));
-}
-
-function simulateSteps({ grid, head, tail, motions }: Input): Grid {
-  motions.forEach((motion, index) => {
-    console.log("Evaluating step", index + 1);
-
-    const commonProps = { grid, head, tail };
-    // displayGrid(commonProps, "Before set of motions", index + 1);
+  motions.forEach((motion) => {
+    const commonProps = { visited, head, tail };
     evaluateStep({ ...commonProps, motion });
-    displayGrid(commonProps, "After set of motions", index + 1);
   });
 
-  return grid;
-}
-
-function countVisited(grid: Grid): number {
-  let visited = 0;
-
-  grid.forEach((row) =>
-    row.forEach((col) => {
-      if (col === VISITED) {
-        visited++;
-      }
-    })
-  );
-
-  return visited;
+  return visited.size;
 }
 
 function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
-  setDebug(type === "example");
 
-  const { grid, head, motions, tail } = parseInput(content);
-  displayGrid({ grid, head, tail }, "Initial step");
+  const { visited, head, motions, tail } = parseInput(content);
 
-  const simulatedGrid = simulateSteps({
-    grid,
+  const visitedPositions = simulateSteps({
+    visited,
     head,
     motions,
     tail,
@@ -297,9 +189,9 @@ function main({ star, day, type }: MainProps) {
 
   switch (star) {
     case "first":
-      return countVisited(simulatedGrid);
+      return visitedPositions;
     case "second":
-      return simulatedGrid;
+      return visitedPositions;
   }
 }
 

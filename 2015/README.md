@@ -1,13 +1,15 @@
 # 2015
 
+**\*** The first year Advent of Code officially started. **\***
+
 ## Contents
 
 1. [Background](#background)
 1. [Installation](#installation)
 1. [CLI](#cli)
-1. [Structure](#structure)
-1. [Create a day](#create-a-day)
-1. [Run a day](#run-a-day)
+   1. [Structure](#structure)
+   1. [Create a day](#create-a-day)
+   1. [Run a day](#run-a-day)
 
 ## Background
 
@@ -40,13 +42,13 @@ As I've done with [2022](https://github.com/jofaval/advent-of-code/tree/master/2
 
 But python's packaging doesn't allow for the flexibility I was provided with in previous languages (Typescript and Golang)
 
-## Structure
+### Structure
 
 [Back to the contents](#contents)
 
 _To be fully defined_
 
-## Create a day
+### Create a day
 
 [Back to the contents](#contents)
 
@@ -58,7 +60,7 @@ python3 --action create --day 1
 python3 -a create -d 1
 ```
 
-## Run a day
+### Run a day
 
 [Back to the contents](#contents)
 

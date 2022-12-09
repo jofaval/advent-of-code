@@ -40,9 +40,10 @@ export const displayMemoryUsage = () => {
 };
 
 type LoggerResponse = {
-  emptyLog: () => void;
+  clear: () => void;
+  empty: () => void;
   oldLogger: typeof console.log;
-  resetOldLogger: () => void;
+  reset: () => void;
 };
 
 export function logger(): LoggerResponse {
@@ -53,14 +54,20 @@ export function logger(): LoggerResponse {
     LOGGED_LINES.push(args);
   };
 
-  const resetOldLogger = () => {
+  const reset = () => {
     console.log = oldLogger;
   };
 
-  const emptyLog = () => {
-    resetOldLogger();
+  const clear = () => {
+    while (LOGGED_LINES.pop()) {
+      // clears the logger
+    }
+  };
+
+  const empty = () => {
+    reset();
     LOGGED_LINES.forEach((args) => console.log(...args));
   };
 
-  return { emptyLog, oldLogger, resetOldLogger };
+  return { empty, oldLogger, reset, clear };
 }

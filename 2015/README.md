@@ -29,7 +29,7 @@ For the installation of any packages required in this project, run the following
 
 ```bash
 # windows version
-python3 -m pip3 install -r requirements.txt
+python -m pip install -r requirements.txt
 # linux version
 pip3 install -r requirements.txt
 ```

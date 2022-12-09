@@ -3,28 +3,10 @@ Day 1
 https://adventofcode.com/2015/day/1
 """
 
-import os
-from typing import TypedDict
+# types
 from enum import Enum
-
-
-class Star(Enum):
-    """Type of star to evaluate"""
-    FIRST = "first"
-    SECOND = "second"
-
-
-class Input(Enum):
-    """Type of input to read from"""
-    TEST = 'test'
-    PROD = 'prod'
-
-
-class AdventOfCodeChallenge(TypedDict):
-    """Challenge details for each day"""
-    day: int
-    star: Star
-    input: Input
+# core
+from 2015.core import Input, Star, read, AdventOfCodeChallenge
 
 
 challenge = AdventOfCodeChallenge(
@@ -33,39 +15,33 @@ challenge = AdventOfCodeChallenge(
     star=Star.SECOND
 )
 
-print(challenge['input'].value)
-
-current_dir = os.path.dirname(__file__)
-
-data_path = os.path.join(
-    current_dir, "data", f"{challenge['input'].value}.txt")
-
-with open(data_path, encoding='utf-8') as reader:
-    content = reader.read()
-
 
 class Floor(Enum):
     UP = "("
     DOWN = ")"
 
 
-floor = 0
-dropped_at = None
+def main() -> None:
+    """Main flow of execution"""
+    content = read(challenge)
 
-for position, char in enumerate(content):
-    if char == Floor.UP.value:
-        floor += 1
-    elif char == Floor.DOWN.value:
-        floor -= 1
+    floor = 0
+    dropped_at = None
 
-    if dropped_at is None and floor <= -1:
-        dropped_at = position + 1
+    for position, char in enumerate(content):
+        if char == Floor.UP.value:
+            floor += 1
+        elif char == Floor.DOWN.value:
+            floor -= 1
 
-result = None
+        if dropped_at is None and floor <= -1:
+            dropped_at = position + 1
 
-if challenge['star'] == Star.FIRST:
-    result = floor
-elif challenge['star'] == Star.SECOND:
-    result = dropped_at
+    result = None
 
-print("Result:", result)
+    if challenge['star'] == Star.FIRST:
+        result = floor
+    elif challenge['star'] == Star.SECOND:
+        result = dropped_at
+
+    print("Result:", result)

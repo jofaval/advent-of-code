@@ -38,3 +38,29 @@ export const displayMemoryUsage = () => {
 
   console.log(memoryUsage);
 };
+
+type LoggerResponse = {
+  emptyLog: () => void;
+  oldLogger: typeof console.log;
+  resetOldLogger: () => void;
+};
+
+export function logger(): LoggerResponse {
+  const LOGGED_LINES = [];
+  const oldLogger = console.log;
+
+  console.log = (...args: any[]) => {
+    LOGGED_LINES.push(args);
+  };
+
+  const resetOldLogger = () => {
+    console.log = oldLogger;
+  };
+
+  const emptyLog = () => {
+    resetOldLogger();
+    LOGGED_LINES.forEach((args) => console.log(...args));
+  };
+
+  return { emptyLog, oldLogger, resetOldLogger };
+}

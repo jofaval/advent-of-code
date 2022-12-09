@@ -4,7 +4,7 @@ https://adventofcode.com/2015/day/1
 """
 
 # types
-from functools import wraps
+from functools import reduce, wraps
 import time
 from enum import Enum
 import re
@@ -98,7 +98,7 @@ def result_wrapper(func):
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
 
-        print("Result: ", result)
+        print("\n" + "Result: ", result)
         return result
     return wrapper
 
@@ -119,7 +119,7 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=2,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
@@ -127,6 +127,7 @@ def main() -> None:
     content = content.split("\n")
 
     total_square_feet = 0
+    total_ribbon_square_feet = 0
 
     for line in content:
         [length, width, height] = line.split("x")
@@ -139,12 +140,19 @@ def main() -> None:
 
         total_square_feet += square_feet
 
+        sorted_perimeters = sorted([length, width, height])
+        feet_of_ribbon = sum(
+            (perimeter * 2 for perimeter in sorted_perimeters[:-1])
+        )
+        total_ribbon_square_feet += feet_of_ribbon + \
+            reduce(lambda prev, curr: prev * curr, sorted_perimeters, 1)
+
     result = None
 
     if challenge['star'] == Star.FIRST:
         result = total_square_feet
     elif challenge['star'] == Star.SECOND:
-        result = total_square_feet
+        result = total_ribbon_square_feet
 
     return result
 

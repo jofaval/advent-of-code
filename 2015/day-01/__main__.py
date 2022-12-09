@@ -30,7 +30,7 @@ class AdventOfCodeChallenge(TypedDict):
 challenge = AdventOfCodeChallenge(
     day=1,
     input=Input.PROD,
-    star=Star.FIRST
+    star=Star.SECOND
 )
 
 print(challenge['input'].value)
@@ -50,11 +50,22 @@ class Floor(Enum):
 
 
 floor = 0
+dropped_at = None
 
-for char in content:
+for position, char in enumerate(content):
     if char == Floor.UP.value:
         floor += 1
     elif char == Floor.DOWN.value:
         floor -= 1
 
-print("Result:", floor)
+    if dropped_at is None and floor <= -1:
+        dropped_at = position + 1
+
+result = None
+
+if challenge['star'] == Star.FIRST:
+    result = floor
+elif challenge['star'] == Star.SECOND:
+    result = dropped_at
+
+print("Result:", result)

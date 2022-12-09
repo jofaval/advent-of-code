@@ -1,13 +1,32 @@
-"""
-The file utilities
-"""
-
 # system
 from os.path import join, dirname, exists
-# utilities
-from .utils import pad
 # types
-from .advent_types import AdventOfCodeChallenge
+from enum import Enum
+from typing import TypedDict
+
+
+def pad(day: int, zeros: int = 2) -> str:
+    """The day padding"""
+    return str(day).zfill(zeros)
+
+
+class Star(Enum):
+    """Type of star to evaluate"""
+    FIRST = "first"
+    SECOND = "second"
+
+
+class Input(Enum):
+    """Type of input to read from"""
+    TEST = 'test'
+    PROD = 'prod'
+
+
+class AdventOfCodeChallenge(TypedDict):
+    """Challenge details for each day"""
+    day: int
+    star: Star
+    input: Input
 
 
 def get_basepath() -> str:

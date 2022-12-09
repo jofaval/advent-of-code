@@ -6,7 +6,7 @@ https://adventofcode.com/2015/day/1
 # types
 from enum import Enum
 # core
-from 2015.core import Input, Star, read, AdventOfCodeChallenge
+from .core import Input, Star, read, AdventOfCodeChallenge
 
 
 challenge = AdventOfCodeChallenge(

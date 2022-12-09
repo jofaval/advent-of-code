@@ -45,3 +45,7 @@ def main() -> None:
         result = dropped_at
 
     print("Result:", result)
+
+
+if __name__ == "__main__":
+    main()

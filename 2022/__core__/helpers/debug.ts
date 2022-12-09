@@ -12,6 +12,10 @@ export function logDebug(...params: any[]) {
   console.log(...params);
 }
 
+export function isDebug(): boolean {
+  return DEBUG;
+}
+
 /**
  * @source https://stackoverflow.com/questions/20018588/how-to-monitor-the-memory-usage-of-node-js#answer-64550489
  */

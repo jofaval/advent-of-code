@@ -60,6 +60,9 @@ python3 --action create --day 1
 python3 -a create -d 1
 ```
 
+Until it's finally realized, the flow is to copy the [`__template__`](./__template__/) folder.
+And replace `__CHANGE_DAY__` for the day you want (`1`, `2`, `3`, etc.)
+
 ### Run a day
 
 [Back to the contents](#contents)

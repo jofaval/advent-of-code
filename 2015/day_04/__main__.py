@@ -163,7 +163,7 @@ def main() -> None:
         # if index % 20 == 0:
         #     output(index=index, raw=raw, hashed=hashed)
 
-        if hashed.startswith("0" * 5):
+        if hashed.startswith("0" * 6):
             output(index=index, raw=raw, hashed=hashed)
             valid_hash = hashed
             break

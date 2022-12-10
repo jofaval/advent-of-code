@@ -10,3 +10,15 @@ For example:
 - If your secret key is `pqrstuv`, the lowest number it combines with to make an MD5 hash starting with five zeroes is `1048970`; that is, the MD5 hash of `pqrstuv1048970` looks like `000006136ef...`.
 
 Your puzzle input is **`yzbqklnj`**.
+
+Your puzzle answer was `282749`.
+
+**The first half of this puzzle is complete! It provides one gold star: \***
+
+--- Part Two ---
+
+Now find one that starts with **six zeroes**.
+
+Your puzzle answer was `9962624`.
+
+**Both parts of this puzzle are complete! They provide two gold stars: \*\***

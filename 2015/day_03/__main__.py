@@ -1,10 +1,10 @@
 """
-Day 1
-https://adventofcode.com/2015/day/1
+Day 3
+https://adventofcode.com/2015/day/3
 """
 
 # types
-from functools import reduce, wraps
+from functools import wraps
 import time
 from enum import Enum
 import re

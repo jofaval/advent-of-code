@@ -1,14 +1,14 @@
 """
-Day 2
-https://adventofcode.com/2015/day/2
+Day __CHANGE_DAY__
+https://adventofcode.com/2015/day/__CHANGE_DAY__
 """
 
 # types
-from functools import reduce, wraps
+from functools import wraps
 import time
 from enum import Enum
 import re
-from typing import List, TypedDict
+from typing import TypedDict
 # system
 from os.path import join, dirname, exists
 
@@ -103,51 +103,24 @@ def result_wrapper(func):
     return wrapper
 
 
-def calc_surface(*areas: List[int]) -> int:
-    """Calculates the area of a right rectangular prism"""
-    return sum((2 * area for area in areas))
-
-
 @result_wrapper
 def main() -> None:
     """Main flow of execution"""
     challenge = AdventOfCodeChallenge(
-        day=2,
+        day=__CHANGE_DAY__,
         input=Input.PROD,
         star=Star.SECOND
     )
 
     content = read(challenge)
     content = re.sub(r'\s$', '', content)
-    content = content.split("\n")
-
-    total_square_feet = 0
-    total_ribbon_square_feet = 0
-
-    for line in content:
-        [length, width, height] = line.split("x")
-        [length, width, height] = [int(length), int(width), int(height)]
-
-        areas = [length*width, width*height, height*length]
-        surface = calc_surface(*areas)
-
-        square_feet = surface + min(areas)
-
-        total_square_feet += square_feet
-
-        sorted_perimeters = sorted([length, width, height])
-        feet_of_ribbon = sum(
-            (perimeter * 2 for perimeter in sorted_perimeters[:-1])
-        )
-        total_ribbon_square_feet += feet_of_ribbon + \
-            reduce(lambda prev, curr: prev * curr, sorted_perimeters, 1)
 
     result = None
 
     if challenge['star'] == Star.FIRST:
-        result = total_square_feet
+        result = 0
     elif challenge['star'] == Star.SECOND:
-        result = total_ribbon_square_feet
+        result = 1
 
     return result
 

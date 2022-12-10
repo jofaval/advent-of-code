@@ -130,46 +130,10 @@ def main() -> None:
     return nice_strings
 
 
-def is_new_naughty(string: str, group_size: int = 3, pair_size: int = 2) -> bool:
+def is_new_naughty(string: str) -> bool:
     """Checks if a string is naughty by the new rules"""
-    prev_chars = []
-    has_pair, has_group = False, False
-    pairs = set()
-
-    for index, char in enumerate(string):
-        prev_chars.append(char)
-
-        # slices the array(list)
-        prev_chars = prev_chars[-group_size:]
-
-        # checks for a repetting letter with a single letter in between
-        if not has_group and len(prev_chars) == group_size:
-            has_group = char == prev_chars[0]
-
-        # checks for a pair
-        if not has_pair and len(prev_chars) >= pair_size:
-            pair = tuple(prev_chars[-2:])
-
-            overlapping = pair[0] == pair[1] and (
-                index >= pair_size
-                and string[index - (pair_size + 1)] != pair[0]
-            ) and (
-                index + 1 < len(string) - 1
-                and string[index + 1] != pair[1]
-            )
-
-            has_pair = not overlapping and pair in pairs
-            pairs.add(pair)
-
-        if has_pair and has_group:
-            break
-
-    print(
-        string,
-        has_pair and has_group,
-        {"has_pair": int(has_pair), "has_group": int(has_group)},
-    )
-    return not has_pair or not has_group
+    # https://blog.jverkamp.com/2015/12/05/advent-of-code-day-5/
+    return not (re.search(r'(..).*\1', string) and re.search(r'(.).\1', string))
 
 
 def is_naughty_old(string: str) -> bool:

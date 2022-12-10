@@ -37,20 +37,31 @@ function parseInput(content: string): Input {
   });
 }
 
-const INTRESTING_CYCLES = [...Array(5).keys()].reduce(
-  (arr) => [...arr, arr.at(-1) + 40],
-  [20]
-);
 const STARTIN_REGISTER_VALUE = 1;
 
-function getSumIntrestingCycles(
-  instructions: Instruction[],
-  intrestingCycles: number[] = INTRESTING_CYCLES,
-  debug: any = {
+type EvaluateInstructionsProps = {
+  instructions: Instruction[];
+  onIntrestingValues: (
+    cycle: number,
+    X: number,
+    logIntresting: (...args: any[]) => void
+  ) => void;
+  intrestingCycles: number[];
+  debug?: {
+    lifecycle: boolean;
+    intresting: boolean;
+  };
+};
+
+function evaluateInstructions({
+  instructions,
+  onIntrestingValues,
+  intrestingCycles,
+  debug = {
     lifecycle: false,
     intresting: true,
-  }
-): number {
+  },
+}: EvaluateInstructionsProps): number {
   let cycle = 1;
   let X = STARTIN_REGISTER_VALUE;
 
@@ -58,7 +69,7 @@ function getSumIntrestingCycles(
 
   const onWait = {};
 
-  const logLifecycle = (...args: any[]) => {
+  const logIntresting = (...args: any[]) => {
     if (!debug.lifecycle) {
       return;
     }
@@ -66,7 +77,7 @@ function getSumIntrestingCycles(
     logDebug(...args);
   };
 
-  const logIntresting = (...args: any[]) => {
+  const logLifecycle = (...args: any[]) => {
     if (!debug.lifecycle) {
       return;
     }
@@ -78,9 +89,7 @@ function getSumIntrestingCycles(
     cycle++;
 
     if (intrestingCycles.includes(cycle)) {
-      const result = cycle * X;
-      logIntresting("intresting cycle", { cycle, X, result });
-      intrestingValues.push(result);
+      onIntrestingValues(cycle, X, logIntresting);
     }
   };
 
@@ -127,15 +136,45 @@ function getSumIntrestingCycles(
   return intrestingValues.reduce(sumReducer, 0);
 }
 
+function getSumIntrestingCycles(
+  instructions: Instruction[],
+  intrestingCycles: number[]
+): number {
+  const intrestingValues: number[] = [];
+
+  evaluateInstructions({
+    instructions,
+    onIntrestingValues: (cycle, X, logIntresting) => {
+      const result = cycle * X;
+      logIntresting("intresting cycle", { cycle, X, result });
+      intrestingValues.push(result);
+    },
+    intrestingCycles,
+  });
+
+  return intrestingValues.reduce(sumReducer, 0);
+}
+
+const StartingCycle = {
+  first: 20,
+  second: 40,
+} as const;
+
 function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
   setDebug(type === "example");
 
   const instructions = parseInput(content);
 
+  let startingCycle: number = StartingCycle[star];
+  const intrestingCycles: number[] = [...Array(5).keys()].reduce(
+    (arr) => [...arr, arr.at(-1) + 40],
+    [startingCycle]
+  );
+
   switch (star) {
     case "first":
-      return getSumIntrestingCycles(instructions);
+      return getSumIntrestingCycles(instructions, intrestingCycles);
     case "second":
       return instructions;
   }

@@ -108,8 +108,8 @@ def main() -> None:
     """Main flow of execution"""
     challenge = AdventOfCodeChallenge(
         day=__CHANGE_DAY__,
-        input=Input.PROD,
-        star=Star.SECOND
+        input=Input.TEST,
+        star=Star.FIRST
     )
 
     content = read(challenge)

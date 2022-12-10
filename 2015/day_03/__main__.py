@@ -127,36 +127,51 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=3,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
     content = re.sub(r'\s$', '', content)
 
     santas_coordinates = [0, 0]
-    houses_with_presents = set()
+    robo_santa_coordinates = [0, 0]
+
+    visited_houses = set()
 
     # starting position
-    houses_with_presents.add(serialize_coordinates(santas_coordinates))
+    visited_houses.add(serialize_coordinates(santas_coordinates))
 
-    for direction in content:
+    for index, direction in enumerate(content):
+        is_robo_santas_turn = challenge['star'] == Star.SECOND and index % 2 != 0
+
+        coordinates = santas_coordinates
+        if is_robo_santas_turn:
+            coordinates = robo_santa_coordinates
+
         if direction == HouseMove.NORTH.value:
-            santas_coordinates[1] += 1
+            coordinates[1] += 1
         if direction == HouseMove.SOUTH.value:
-            santas_coordinates[1] -= 1
+            coordinates[1] -= 1
         if direction == HouseMove.EAST.value:
-            santas_coordinates[0] += 1
+            coordinates[0] += 1
         if direction == HouseMove.WEST.value:
-            santas_coordinates[0] -= 1
+            coordinates[0] -= 1
 
-        houses_with_presents.add(serialize_coordinates(santas_coordinates))
+        if is_robo_santas_turn:
+            robo_santa_coordinates = coordinates
+            visited_houses.add(
+                serialize_coordinates(robo_santa_coordinates)
+            )
+        else:
+            santas_coordinates = coordinates
+            visited_houses.add(serialize_coordinates(santas_coordinates))
 
     result = None
 
     if challenge['star'] == Star.FIRST:
-        result = len(houses_with_presents)
+        result = len(visited_houses)
     elif challenge['star'] == Star.SECOND:
-        result = len(houses_with_presents)
+        result = len(visited_houses)
 
     return result
 

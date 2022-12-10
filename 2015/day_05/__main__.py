@@ -109,47 +109,90 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=5,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
     content = re.sub(r'\s$', '', content)
 
     nice_strings = 0
-    naughty_strings = 0
-    naughty_substrings = ["ab", "cd", "pq", "xy"]
+
+    is_naughty = None
+    if challenge['star'] == Star.FIRST:
+        is_naughty = is_naughty_old
+    elif challenge['star'] == Star.SECOND:
+        is_naughty = is_new_naughty
 
     for string in content.split("\n"):
-        contains_naughty = contains_naughty_substrings(
-            naughty_substrings, string
-        )
+        if not is_naughty(string):
+            nice_strings += 1
 
-        not_enough_vowels = does_not_contain_n_vowels(string)
+    return nice_strings
 
-        does_not_repeat = does_not_repeat_twice_in_a_row(string)
 
-        print(
-            string, {
-                "contains_naughty": contains_naughty,
-                "not_enough_vowels": not_enough_vowels,
-                "does_not_repeat": does_not_repeat,
-            }
-        )
+def is_new_naughty(string: str, group_size: int = 3, pair_size: int = 2) -> bool:
+    """Checks if a string is naughty by the new rules"""
+    prev_chars = []
+    has_pair, has_group = False, False
+    pairs = set()
 
-        if contains_naughty or not_enough_vowels or does_not_repeat:
-            naughty_strings += 1
-            continue
+    for index, char in enumerate(string):
+        prev_chars.append(char)
 
-        nice_strings += 1
+        # slices the array(list)
+        prev_chars = prev_chars[-group_size:]
 
-    result = None
+        # checks for a repetting letter with a single letter in between
+        if not has_group and len(prev_chars) == group_size:
+            has_group = char == prev_chars[0]
 
-    if challenge['star'] == Star.FIRST:
-        result = nice_strings
-    elif challenge['star'] == Star.SECOND:
-        result = 1
+        # checks for a pair
+        if not has_pair and len(prev_chars) >= pair_size:
+            pair = tuple(prev_chars[-2:])
 
-    return result
+            overlapping = pair[0] == pair[1] and (
+                index >= pair_size
+                and string[index - (pair_size + 1)] != pair[0]
+            ) and (
+                index + 1 < len(string) - 1
+                and string[index + 1] != pair[1]
+            )
+
+            has_pair = not overlapping and pair in pairs
+            pairs.add(pair)
+
+        if has_pair and has_group:
+            break
+
+    print(
+        string,
+        has_pair and has_group,
+        {"has_pair": int(has_pair), "has_group": int(has_group)},
+    )
+    return not has_pair or not has_group
+
+
+def is_naughty_old(string: str) -> bool:
+    """Checks if a string is naughty by the old rules"""
+    naughty_substrings = ["ab", "cd", "pq", "xy"]
+
+    contains_naughty = contains_naughty_substrings(
+        naughty_substrings, string
+    )
+
+    not_enough_vowels = does_not_contain_n_vowels(string)
+
+    does_not_repeat = does_not_repeat_twice_in_a_row(string)
+
+    print(
+        string, {
+            "contains_naughty": contains_naughty,
+            "not_enough_vowels": not_enough_vowels,
+            "does_not_repeat": does_not_repeat,
+        }
+    )
+
+    return contains_naughty or not_enough_vowels or does_not_repeat
 
 
 def does_not_repeat_twice_in_a_row(string: str) -> bool:

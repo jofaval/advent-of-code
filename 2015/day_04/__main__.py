@@ -5,12 +5,12 @@ https://adventofcode.com/2015/day/4
 
 # types
 import datetime
-from functools import reduce, wraps
+from functools import wraps
 from hashlib import md5
 import time
 from enum import Enum
 import re
-from typing import List, Tuple, TypedDict
+from typing import TypedDict
 # system
 from os.path import join, dirname, exists
 
@@ -102,24 +102,6 @@ def result_wrapper(func):
         print("\n" + "Result: ", result)
         return result
     return wrapper
-
-
-class HouseMove(Enum):
-    """Where should santa go"""
-    NORTH = "^"
-    SOUTH = "v"
-    EAST = ">"
-    WEST = "<"
-
-
-def calc_surface(*areas: List[int]) -> int:
-    """Calculates the area of a right rectangular prism"""
-    return sum((2 * area for area in areas))
-
-
-def serialize_coordinates(coordinates: List[int]) -> Tuple[int]:
-    """Serializes coordinates to a string"""
-    return tuple(coordinates)
 
 
 OUTPUT_FILENAME = join(dirname(__file__), "output.txt")

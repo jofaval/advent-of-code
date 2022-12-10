@@ -41,25 +41,43 @@ const STARTIN_REGISTER_VALUE = 1;
 
 type EvaluateInstructionsProps = {
   instructions: Instruction[];
-  onIntrestingValues: (
-    cycle: number,
-    X: number,
-    logIntresting: (...args: any[]) => void
-  ) => void;
+  onIntrestingValues: ({
+    cycle,
+    X,
+    logIntresting,
+  }: {
+    cycle: number;
+    X: number;
+    logIntresting: (...args: any[]) => void;
+  }) => void;
+  onCycle?: ({
+    cycle,
+    instruction,
+    logCycle,
+    X,
+  }: {
+    cycle: number;
+    instruction: Instruction | undefined;
+    logCycle: (...args: any[]) => void;
+    X: number;
+  }) => number | undefined;
   intrestingCycles: number[];
   debug?: {
-    lifecycle: boolean;
     intresting: boolean;
+    lifecycle: boolean;
+    onCycle: boolean;
   };
 };
 
 function evaluateInstructions({
   instructions,
   onIntrestingValues,
+  onCycle,
   intrestingCycles,
   debug = {
     lifecycle: false,
     intresting: true,
+    onCycle: true,
   },
 }: EvaluateInstructionsProps): number {
   let cycle = 1;
@@ -85,11 +103,19 @@ function evaluateInstructions({
     logDebug(...args);
   };
 
+  const logCycle = (...args: any[]) => {
+    if (!debug.onCycle) {
+      return;
+    }
+
+    logDebug(...args);
+  };
+
   const increaseCycle = () => {
     cycle++;
 
     if (intrestingCycles.includes(cycle)) {
-      onIntrestingValues(cycle, X, logIntresting);
+      onIntrestingValues({ cycle, X, logIntresting });
     }
   };
 
@@ -124,6 +150,11 @@ function evaluateInstructions({
   while ((instruction = instructions.shift()) || Object.keys(onWait).length) {
     logLifecycle("start", { cycle, X, raw: instruction.raw, onWait });
 
+    if (onCycle) {
+      const tempCycle = onCycle({ cycle, X, logCycle, instruction });
+      cycle = tempCycle ?? cycle;
+    }
+
     evaluateInstruction(instruction);
 
     waitCycles();
@@ -144,7 +175,7 @@ function getSumIntrestingCycles(
 
   evaluateInstructions({
     instructions,
-    onIntrestingValues: (cycle, X, logIntresting) => {
+    onIntrestingValues: ({ cycle, X, logIntresting }) => {
       const result = cycle * X;
       logIntresting("intresting cycle", { cycle, X, result });
       intrestingValues.push(result);
@@ -153,6 +184,58 @@ function getSumIntrestingCycles(
   });
 
   return intrestingValues.reduce(sumReducer, 0);
+}
+
+const CRT_WIDTH = 40;
+
+function displayCrtImage(image: string[][]) {
+  let log = [];
+
+  for (const line of image) {
+    log.push(line);
+  }
+
+  console.log(log.join("\n"));
+}
+
+function getCrtDisplay(
+  instructions: Instruction[],
+  intrestingCycles: number[]
+): void {
+  const image = [];
+  let X = 0;
+  const row = [];
+
+  evaluateInstructions({
+    instructions,
+    onIntrestingValues: ({ cycle, X, logIntresting }) => {
+      image.push(row);
+
+      while (row.pop()) {
+        // clean the row
+      }
+    },
+    onCycle: ({ cycle, X, instruction, logCycle }) => {
+      let tempCycle = cycle;
+
+      logCycle(`Start cycle ${cycle}: CRT draws pixel in position ${X}`, {
+        instruction,
+      });
+
+      logCycle(`During cycle ${cycle}: CRT draws pixel in position ${X}`);
+
+      logCycle("Current CRT row:", row);
+
+      logCycle(`End of cycle ${cycle}: CRT draws pixel in position ${X}`);
+
+      logCycle("");
+
+      return tempCycle;
+    },
+    intrestingCycles,
+  });
+
+  return displayCrtImage(image);
 }
 
 const StartingCycle = {
@@ -176,7 +259,7 @@ function main({ star, day, type }: MainProps) {
     case "first":
       return getSumIntrestingCycles(instructions, intrestingCycles);
     case "second":
-      return instructions;
+      return getCrtDisplay(instructions, intrestingCycles);
   }
 }
 
@@ -184,7 +267,7 @@ function main({ star, day, type }: MainProps) {
 (() => {
   console.time(BENCHMARK_ID);
 
-  const result = main({ star: "first", day: 10, type: "test" });
+  const result = main({ star: "second", day: 10, type: "example" });
   console.log({ result });
 
   console.timeEnd(BENCHMARK_ID);

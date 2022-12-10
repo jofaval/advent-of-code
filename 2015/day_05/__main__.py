@@ -1,6 +1,6 @@
 """
-Day __CHANGE_DAY__
-https://adventofcode.com/2015/day/__CHANGE_DAY__
+Day 5
+https://adventofcode.com/2015/day/5
 """
 
 # types
@@ -8,7 +8,7 @@ from functools import wraps
 import time
 from enum import Enum
 import re
-from typing import TypedDict
+from typing import List, TypedDict
 # system
 from os.path import join, dirname, exists
 
@@ -107,22 +107,75 @@ def result_wrapper(func):
 def main() -> None:
     """Main flow of execution"""
     challenge = AdventOfCodeChallenge(
-        day=__CHANGE_DAY__,
-        input=Input.TEST,
+        day=5,
+        input=Input.PROD,
         star=Star.FIRST
     )
 
     content = read(challenge)
     content = re.sub(r'\s$', '', content)
 
+    nice_strings = 0
+    naughty_strings = 0
+    naughty_substrings = ["ab", "cd", "pq", "xy"]
+
+    for string in content.split("\n"):
+        contains_naughty = contains_naughty_substrings(
+            naughty_substrings, string
+        )
+
+        not_enough_vowels = does_not_contain_n_vowels(string)
+
+        does_not_repeat = does_not_repeat_twice_in_a_row(string)
+
+        print(
+            string, {
+                "contains_naughty": contains_naughty,
+                "not_enough_vowels": not_enough_vowels,
+                "does_not_repeat": does_not_repeat,
+            }
+        )
+
+        if contains_naughty or not_enough_vowels or does_not_repeat:
+            naughty_strings += 1
+            continue
+
+        nice_strings += 1
+
     result = None
 
     if challenge['star'] == Star.FIRST:
-        result = 0
+        result = nice_strings
     elif challenge['star'] == Star.SECOND:
         result = 1
 
     return result
+
+
+def does_not_repeat_twice_in_a_row(string: str) -> bool:
+    """Checks if a character doesn't repeat itself in a row"""
+    prev_char = ""
+    for char in string:
+        if char == prev_char:
+            return False
+        prev_char = char
+
+    return True
+
+
+def does_not_contain_n_vowels(string: str, min_vowels: int = 3) -> bool:
+    """Checks if it doesn't contain the expected amount of vowels"""
+    vowels = re.findall(r'(a|e|i|o|u)', string)
+    return len(vowels) < min_vowels
+
+
+def contains_naughty_substrings(naughty_substrings: List[str], string: str) -> bool:
+    """Check if it contains any of the prohibited substrings"""
+    for candidate in naughty_substrings:
+        if candidate in string:
+            return True
+
+    return False
 
 
 if __name__ == "__main__":

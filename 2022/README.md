@@ -82,4 +82,5 @@ All files should follow the following structure:
 1. [Day 8](./day-08/)
 1. [Day 9](./day-09/)
 1. [Day 10](./day-10/)
+1. [Day 11](./day-11/)
 <!-- Next day -->

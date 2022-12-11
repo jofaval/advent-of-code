@@ -50,34 +50,29 @@ function parseMonkey(lines: string): Monkey {
     },
   };
 
-  lines.split(JUMP_LINE).forEach((line, index) => {
-    switch (index) {
-      case 0:
-        monkey.id = Number(line.match(NUMBERS_REGEX)[0]);
-        break;
-      case 1:
-        monkey.items = line.match(NUMBERS_REGEX).map(Number);
-        break;
-      case 2:
-        const splitted = line.split(SPACE);
-        const operator = splitted.at(-1);
+  const splittedLines = lines.split(JUMP_LINE);
 
-        monkey.operation = {
-          operand: splitted.at(-2) as MonkeyOperationOperand,
-          operator: operator !== "old" ? Number(operator) : operator,
-        };
-        break;
-      case 3:
-        monkey.test.by = Number(line.match(NUMBERS_REGEX)[0]);
-        break;
-      case 4:
-        monkey.test.whenTrueThrowTo = Number(line.match(NUMBERS_REGEX)[0]);
-        break;
-      case 5:
-        monkey.test.whenFalseThrowTo = Number(line.match(NUMBERS_REGEX)[0]);
-        break;
-    }
-  });
+  // Monkey ID
+  monkey.id = Number(splittedLines[0].match(NUMBERS_REGEX)[0]);
+  // Items
+  monkey.items = splittedLines[1].match(NUMBERS_REGEX).map(Number);
+  // Operation
+  const splitted = splittedLines[2].split(SPACE);
+  const operator = splitted.at(-1);
+  monkey.operation = {
+    operand: splitted.at(-2) as MonkeyOperationOperand,
+    operator: operator !== "old" ? Number(operator) : operator,
+  };
+  // Test, divide by
+  monkey.test.by = Number(splittedLines[3].match(NUMBERS_REGEX)[0]);
+  // If true
+  monkey.test.whenTrueThrowTo = Number(
+    splittedLines[4].match(NUMBERS_REGEX)[0]
+  );
+  // If false
+  monkey.test.whenFalseThrowTo = Number(
+    splittedLines[5].match(NUMBERS_REGEX)[0]
+  );
 
   return monkey;
 }
@@ -138,6 +133,11 @@ function getMonkeyBussiness({
   const timesUsed = new Map<Monkey["id"], number>();
   monkeys.forEach((_, id) => timesUsed.set(id, 0));
 
+  // Got it from: https://github.com/Fadi88/AoC/blob/master/2022/day11/code.py
+  // I did not even had the slightest idea this was what was missing
+  const divisors = [...monkeys.values()].map(({ test: { by } }) => by);
+  const commonDivisor = divisors.reduce(mulReducer, 1);
+
   for (let round = 0; round < rounds; round++) {
     // logDebug("round", round + 1, "starts");
     // displayMonkeys(monkeys);
@@ -159,7 +159,7 @@ function getMonkeyBussiness({
         if (!(monkeyId in throwables)) {
           throwables[monkeyId] = [];
         }
-        throwables[monkeyId].push(item);
+        throwables[monkeyId].push(item % commonDivisor);
 
         timesUsed.set(id, timesUsed.get(id) + 1);
       }
@@ -215,7 +215,7 @@ function main({ star, day, type }: MainProps) {
 (() => {
   console.time(BENCHMARK_ID);
 
-  const result = main({ star: "second", day: 11, type: "example" });
+  const result = main({ star: "second", day: 11, type: "test" });
   console.log({ result });
 
   console.timeEnd(BENCHMARK_ID);

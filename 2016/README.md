@@ -9,6 +9,8 @@
 
 ## Setup and configuration
 
+[Back to contents](#contents)
+
 I'll do my best not to install or depend on any vendors.
 
 As for my configuration:
@@ -16,6 +18,8 @@ As for my configuration:
 - PHP == 7.3.14
 
 ## Create a day
+
+[Back to contents](#contents)
 
 From the root of the year (.../advent-of-code/2016):
 
@@ -25,6 +29,8 @@ php elves make 1
 
 ## Run a day
 
+[Back to contents](#contents)
+
 From the root of the year (.../advent-of-code/2016):
 
 ```bash
@@ -32,6 +38,8 @@ php elves run 1
 ```
 
 ## Structure
+
+[Back to contents](#contents)
 
 - day-01, the folder for each day
   - data, a folder for the input data

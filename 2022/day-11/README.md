@@ -317,3 +317,5 @@ Monkey 2 inspected items 1938 times.
 After 10000 rounds, the two most active monkeys inspected items 52166 and 52013 times. Multiplying these together, the level of **monkey business** in this situation is now **`2713310158`**.
 
 Worry levels are no longer divided by three after each item is inspected; you'll need to find another way to keep your worry levels manageable. Starting again from the initial state in your puzzle input, **what is the level of monkey business after 10000 rounds?**
+
+Final answer: `14106266886`

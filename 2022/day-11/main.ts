@@ -14,18 +14,12 @@ import {
 type MonkeyOperationOperand = "+" | "-" | "*" | "/";
 
 type MonkeyOperation = {
-  first: number;
   operand: MonkeyOperationOperand;
-  second: number;
-};
-
-type MonkeyTestCondition = {
-  operation: "divisible";
-  by: number;
+  operator: number | "old";
 };
 
 type MonkeyTest = {
-  condition: MonkeyTestCondition;
+  by: number;
   whenTrueThrowTo: number;
   whenFalseThrowTo: number;
 };
@@ -39,7 +33,6 @@ type Monkey = {
 
 type MonkeysMap = Map<number, Monkey>;
 
-const OLD_OPERATION = -1;
 const NUMBERS_REGEX = /\d+/g;
 
 function parseMonkey(lines: string): Monkey {
@@ -47,17 +40,13 @@ function parseMonkey(lines: string): Monkey {
     id: 0,
     items: [],
     operation: {
-      first: 0,
       operand: "+",
-      second: 0,
+      operator: 0,
     },
     test: {
+      by: 0,
       whenTrueThrowTo: 0,
       whenFalseThrowTo: 0,
-      condition: {
-        operation: "divisible",
-        by: 0,
-      },
     },
   };
 
@@ -71,20 +60,15 @@ function parseMonkey(lines: string): Monkey {
         break;
       case 2:
         const splitted = line.split(SPACE);
-
-        let second = splitted.at(-1);
-        if (second === "old") {
-          second = OLD_OPERATION.toString();
-        }
+        const operator = splitted.at(-1);
 
         monkey.operation = {
-          ...monkey.operation,
           operand: splitted.at(-2) as MonkeyOperationOperand,
-          second: Number(second),
+          operator: operator !== "old" ? Number(operator) : operator,
         };
         break;
       case 3:
-        monkey.test.condition.by = Number(line.match(NUMBERS_REGEX)[0]);
+        monkey.test.by = Number(line.match(NUMBERS_REGEX)[0]);
         break;
       case 4:
         monkey.test.whenTrueThrowTo = Number(line.match(NUMBERS_REGEX)[0]);
@@ -110,25 +94,16 @@ function getNewWorryLevel(
   worryLevel: number,
   areYouRelievedAfterThrow: boolean
 ) {
-  const { operand, second } = monkey.operation;
+  const { operand, operator } = monkey.operation;
 
-  let newWorryLevel = worryLevel;
-  const secondNumber: number = second === OLD_OPERATION ? worryLevel : second;
-
-  switch (operand) {
-    case "+":
-      newWorryLevel = worryLevel + secondNumber;
-      break;
-    case "*":
-      newWorryLevel = worryLevel * secondNumber;
-      break;
-  }
-
+  let newWorryLevel = eval(
+    `${worryLevel} ${operand} ${operator === "old" ? worryLevel : operator}`
+  );
   if (areYouRelievedAfterThrow) {
     newWorryLevel = newWorryLevel / RELEIEVED_BY;
   }
 
-  return Math.round(newWorryLevel);
+  return Math.floor(newWorryLevel);
 }
 
 function displayMonkeys(monkeys: MonkeysMap): void {
@@ -145,7 +120,7 @@ type GetMonkeyBussinessProps = {
 };
 
 function getMonkeyToThrowAt(monkey: Monkey, item: number): number {
-  const condition = item % monkey.test.condition.by === 0;
+  const condition = item % monkey.test.by === 0;
 
   const monkeyId = condition
     ? monkey.test.whenTrueThrowTo
@@ -154,40 +129,12 @@ function getMonkeyToThrowAt(monkey: Monkey, item: number): number {
   return monkeyId;
 }
 
-function evaluateMonkey(
-  areYouRelievedAfterThrow: boolean,
-  timesUsed: Map<number, number>
-): (value: Monkey, key: number, map: Map<number, Monkey>) => void {
-  return (monkey, id, map) => {
-    // logDebug("evaluating monkey with id:", id);
-    const throwables: Record<Monkey["id"], number[]> = {};
-
-    let item: number;
-    while ((item = monkey.items.shift())) {
-      item = getNewWorryLevel(monkey, item, areYouRelievedAfterThrow);
-      const monkeyId = getMonkeyToThrowAt(monkey, item);
-
-      if (!(monkeyId in throwables)) {
-        throwables[monkeyId] = [];
-      }
-      throwables[monkeyId].push(item);
-
-      timesUsed.set(id, timesUsed.get(id) + 1);
-    }
-
-    // actually throw the items to the monkeys, at the end of the stack (by/in order)
-    Object.entries(throwables).map(([monkeyId, items]) => {
-      map.get(Number(monkeyId)).items.push(...items);
-    });
-  };
-}
-
 function getMonkeyBussiness({
   monkeys,
   rounds = 20,
   mostActive = 2,
   areYouRelievedAfterThrow,
-}: GetMonkeyBussinessProps): BigInt {
+}: GetMonkeyBussinessProps): number {
   const timesUsed = new Map<Monkey["id"], number>();
   monkeys.forEach((_, id) => timesUsed.set(id, 0));
 
@@ -196,7 +143,34 @@ function getMonkeyBussiness({
     // displayMonkeys(monkeys);
     // logDebug("");
 
-    monkeys.forEach(evaluateMonkey(areYouRelievedAfterThrow, timesUsed));
+    monkeys.forEach((monkey, id, map) => {
+      // logDebug("evaluating monkey with id:", id);
+      if (!monkey.items.length) {
+        return;
+      }
+
+      const throwables: Record<Monkey["id"], number[]> = {};
+
+      let item: number;
+      while ((item = monkey.items.shift())) {
+        item = getNewWorryLevel(monkey, item, areYouRelievedAfterThrow);
+        const monkeyId = getMonkeyToThrowAt(monkey, item);
+
+        if (!(monkeyId in throwables)) {
+          throwables[monkeyId] = [];
+        }
+        throwables[monkeyId].push(item);
+
+        timesUsed.set(id, timesUsed.get(id) + 1);
+      }
+
+      // actually throw the items to the monkeys, at the end of the stack (by/in order)
+      Object.entries(throwables).map(([monkeyId, items]) => {
+        map.get(Number(monkeyId)).items.push(...items);
+      });
+
+      // logDebug("");
+    });
 
     if (areYouRelievedAfterThrow) {
       logDebug("round", round + 1, "ends");
@@ -216,17 +190,12 @@ function getMonkeyBussiness({
     isDescending: true,
   });
 
-  console.log(mostActiveMonkeys);
-
-  mostActiveMonkeys = mostActiveMonkeys.slice(0, mostActive);
-
-  return BigInt(mostActiveMonkeys.reduce(mulReducer, 1));
+  return mostActiveMonkeys.slice(0, mostActive).reduce(mulReducer, 1);
 }
 
 const Rounds = {
   first: 20,
-  // second: 10_000,
-  second: 20,
+  second: 10_000,
 } as const;
 
 function main({ star, day, type }: MainProps) {

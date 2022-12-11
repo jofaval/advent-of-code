@@ -35,6 +35,16 @@ You may want to directly execute a day, you can do so by executing the `run` scr
 pnpm run run [Day] # or npm or yarn
 ```
 
+My recommended usage, whenever outputing some content, is to:
+
+```bash
+# cd .../advent-of-code/2022/day-[DAY]/
+./run.sh > output.txt
+```
+
+You'll have the output in a file you can look whenever you want, and it will be much faster on larger outputs than the usual bare `console.log`.\
+Be careful, (`>`) **overwrites** the folder, you may want to _append_ (`>>`)
+
 ## Create from template
 
 [Back to contents](#contents)

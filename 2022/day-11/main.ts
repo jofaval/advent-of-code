@@ -5,11 +5,10 @@ import {
   DOUBLE_JUMP_LINE,
   JUMP_LINE,
   SPACE,
-  ascending,
   logDebug,
   setDebug,
-  mulReducer,
   sortArray,
+  mulReducer,
 } from "../__core__";
 
 type MonkeyOperationOperand = "+" | "-" | "*" | "/";
@@ -104,12 +103,14 @@ function parseInput(content: string): MonkeysMap {
   return new Map(monkeys.map((monkey) => [monkey.id, monkey]));
 }
 
-function getNewWorryLevel(monkey: Monkey) {
+const RELEIEVED_BY = 3;
+
+function getNewWorryLevel(monkey: Monkey, areYouRelievedAfterThrow: boolean) {
   const { operand, second } = monkey.operation;
 
   return (worryLevel: number) => {
     let newWorryLevel = worryLevel;
-    const secondNumber = second === OLD_OPERATION ? worryLevel : second;
+    const secondNumber: number = second === OLD_OPERATION ? worryLevel : second;
 
     switch (operand) {
       case "+":
@@ -118,15 +119,13 @@ function getNewWorryLevel(monkey: Monkey) {
       case "*":
         newWorryLevel = worryLevel * secondNumber;
         break;
-      case "-":
-        newWorryLevel = worryLevel - secondNumber;
-        break;
-      case "/":
-        newWorryLevel = worryLevel / secondNumber;
-        break;
     }
 
-    return Math.floor(newWorryLevel / 3);
+    if (areYouRelievedAfterThrow) {
+      newWorryLevel = newWorryLevel / RELEIEVED_BY;
+    }
+
+    return Math.round(newWorryLevel);
   };
 }
 
@@ -140,6 +139,7 @@ type GetMonkeyBussinessProps = {
   monkeys: MonkeysMap;
   rounds?: number;
   mostActive?: number;
+  areYouRelievedAfterThrow: boolean;
 };
 
 function getMonkeyToThrowAt(monkey: Monkey, item: number): number {
@@ -156,7 +156,8 @@ function getMonkeyBussiness({
   monkeys,
   rounds = 20,
   mostActive = 2,
-}: GetMonkeyBussinessProps): number {
+  areYouRelievedAfterThrow,
+}: GetMonkeyBussinessProps): BigInt {
   const timesUsed = new Map<Monkey["id"], number>();
 
   for (let round = 0; round < rounds; round++) {
@@ -169,14 +170,15 @@ function getMonkeyBussiness({
       if (!timesUsed.has(id)) {
         timesUsed.set(id, 0);
       }
-      timesUsed.set(id, timesUsed.get(id) + monkey.items.length);
 
-      monkey.items = monkey.items.map(getNewWorryLevel(monkey));
+      monkey.items = monkey.items.map(
+        getNewWorryLevel(monkey, areYouRelievedAfterThrow)
+      );
       // logDebug("items evaluated", monkey.items);
 
       const itemsLen = monkey.items.length - 1;
 
-      const throwables: Record<number, number[]> = {};
+      const throwables: Record<Monkey["id"], number[]> = {};
 
       // reverse for-loop because we're deleting elements
       for (let itemIndex = itemsLen; itemIndex >= 0; itemIndex--) {
@@ -190,6 +192,7 @@ function getMonkeyBussiness({
         throwables[monkeyId] = [item, ...throwables[monkeyId]];
 
         monkey.items = monkey.items.filter((_, index) => index !== itemIndex);
+        timesUsed.set(id, timesUsed.get(id) + 1);
       }
 
       // actually throw the items to the monkeys, at the end of the stack (by/in order)
@@ -200,18 +203,35 @@ function getMonkeyBussiness({
       // logDebug("");
     });
 
-    logDebug("round", round + 1, "ends");
-    displayMonkeys(monkeys);
-    logDebug("");
+    if (areYouRelievedAfterThrow) {
+      logDebug("round", round + 1, "ends");
+      displayMonkeys(monkeys);
+      logDebug();
+    } else {
+      logDebug("== After round", round + 1, "==");
+      timesUsed.forEach((times, id) => {
+        logDebug("Monkey", id, "inspected items", times, "times.");
+      });
+      logDebug();
+    }
   }
 
-  return sortArray<number>({
+  let mostActiveMonkeys = sortArray({
     array: [...timesUsed.values()],
     isDescending: true,
-  })
-    .slice(0, mostActive)
-    .reduce(mulReducer, 1);
+  });
+
+  console.log(mostActiveMonkeys);
+
+  mostActiveMonkeys = mostActiveMonkeys.slice(0, mostActive);
+
+  return BigInt(mostActiveMonkeys.reduce(mulReducer, 1));
 }
+
+const Rounds = {
+  first: 20,
+  second: 10_000,
+} as const;
 
 function main({ star, day, type }: MainProps) {
   const content = readInput({ star, day, type });
@@ -219,19 +239,18 @@ function main({ star, day, type }: MainProps) {
 
   const monkeys = parseInput(content);
 
-  switch (star) {
-    case "first":
-      return getMonkeyBussiness({ monkeys, rounds: 20 });
-    case "second":
-      return monkeys;
-  }
+  return getMonkeyBussiness({
+    monkeys,
+    rounds: Rounds[star],
+    areYouRelievedAfterThrow: star === "first",
+  });
 }
 
 // entrypoint
 (() => {
   console.time(BENCHMARK_ID);
 
-  const result = main({ star: "first", day: 11, type: "test" });
+  const result = main({ star: "second", day: 11, type: "example" });
   console.log({ result });
 
   console.timeEnd(BENCHMARK_ID);

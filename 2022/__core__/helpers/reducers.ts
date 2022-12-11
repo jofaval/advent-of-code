@@ -1,5 +1,7 @@
 export const sumReducer = (prev: number, acc: number) => prev + acc;
 
+export const mulReducer = (prev: number, acc: number) => prev * acc;
+
 export const minReducer = (min: number, current: number) => {
   if (min > current) {
     return current;

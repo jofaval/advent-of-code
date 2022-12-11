@@ -21,12 +21,12 @@ function main({ star, day, type }: MainProps) {
 // entrypoint
 (() => {
   console.time(BENCHMARK_ID);
-  const { empty, reset } = logger();
+  // const { empty, reset } = logger();
 
   const result = main({ star: "first", day: §DAY, type: "example" });
   console.log({ result });
 
-  reset();
+  // reset();
   console.timeEnd(BENCHMARK_ID);
-  empty();
+  // empty();
 })();

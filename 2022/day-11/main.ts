@@ -105,28 +105,30 @@ function parseInput(content: string): MonkeysMap {
 
 const RELEIEVED_BY = 3;
 
-function getNewWorryLevel(monkey: Monkey, areYouRelievedAfterThrow: boolean) {
+function getNewWorryLevel(
+  monkey: Monkey,
+  worryLevel: number,
+  areYouRelievedAfterThrow: boolean
+) {
   const { operand, second } = monkey.operation;
 
-  return (worryLevel: number) => {
-    let newWorryLevel = worryLevel;
-    const secondNumber: number = second === OLD_OPERATION ? worryLevel : second;
+  let newWorryLevel = worryLevel;
+  const secondNumber: number = second === OLD_OPERATION ? worryLevel : second;
 
-    switch (operand) {
-      case "+":
-        newWorryLevel = worryLevel + secondNumber;
-        break;
-      case "*":
-        newWorryLevel = worryLevel * secondNumber;
-        break;
-    }
+  switch (operand) {
+    case "+":
+      newWorryLevel = worryLevel + secondNumber;
+      break;
+    case "*":
+      newWorryLevel = worryLevel * secondNumber;
+      break;
+  }
 
-    if (areYouRelievedAfterThrow) {
-      newWorryLevel = newWorryLevel / RELEIEVED_BY;
-    }
+  if (areYouRelievedAfterThrow) {
+    newWorryLevel = newWorryLevel / RELEIEVED_BY;
+  }
 
-    return Math.round(newWorryLevel);
-  };
+  return Math.round(newWorryLevel);
 }
 
 function displayMonkeys(monkeys: MonkeysMap): void {
@@ -152,6 +154,34 @@ function getMonkeyToThrowAt(monkey: Monkey, item: number): number {
   return monkeyId;
 }
 
+function evaluateMonkey(
+  areYouRelievedAfterThrow: boolean,
+  timesUsed: Map<number, number>
+): (value: Monkey, key: number, map: Map<number, Monkey>) => void {
+  return (monkey, id, map) => {
+    // logDebug("evaluating monkey with id:", id);
+    const throwables: Record<Monkey["id"], number[]> = {};
+
+    let item: number;
+    while ((item = monkey.items.shift())) {
+      item = getNewWorryLevel(monkey, item, areYouRelievedAfterThrow);
+      const monkeyId = getMonkeyToThrowAt(monkey, item);
+
+      if (!(monkeyId in throwables)) {
+        throwables[monkeyId] = [];
+      }
+      throwables[monkeyId].push(item);
+
+      timesUsed.set(id, timesUsed.get(id) + 1);
+    }
+
+    // actually throw the items to the monkeys, at the end of the stack (by/in order)
+    Object.entries(throwables).map(([monkeyId, items]) => {
+      map.get(Number(monkeyId)).items.push(...items);
+    });
+  };
+}
+
 function getMonkeyBussiness({
   monkeys,
   rounds = 20,
@@ -159,56 +189,21 @@ function getMonkeyBussiness({
   areYouRelievedAfterThrow,
 }: GetMonkeyBussinessProps): BigInt {
   const timesUsed = new Map<Monkey["id"], number>();
+  monkeys.forEach((_, id) => timesUsed.set(id, 0));
 
   for (let round = 0; round < rounds; round++) {
     // logDebug("round", round + 1, "starts");
     // displayMonkeys(monkeys);
     // logDebug("");
 
-    monkeys.forEach((monkey, id, map) => {
-      // logDebug("evaluating monkey with id:", id);
-      if (!timesUsed.has(id)) {
-        timesUsed.set(id, 0);
-      }
-
-      monkey.items = monkey.items.map(
-        getNewWorryLevel(monkey, areYouRelievedAfterThrow)
-      );
-      // logDebug("items evaluated", monkey.items);
-
-      const itemsLen = monkey.items.length - 1;
-
-      const throwables: Record<Monkey["id"], number[]> = {};
-
-      // reverse for-loop because we're deleting elements
-      for (let itemIndex = itemsLen; itemIndex >= 0; itemIndex--) {
-        // logDebug("preparing to throw items", monkey.items.length);
-        const item = monkey.items[itemIndex];
-
-        const monkeyId = getMonkeyToThrowAt(monkey, item);
-        if (!(monkeyId in throwables)) {
-          throwables[monkeyId] = [];
-        }
-        throwables[monkeyId] = [item, ...throwables[monkeyId]];
-
-        monkey.items = monkey.items.filter((_, index) => index !== itemIndex);
-        timesUsed.set(id, timesUsed.get(id) + 1);
-      }
-
-      // actually throw the items to the monkeys, at the end of the stack (by/in order)
-      Object.entries(throwables).map(([monkeyId, items]) => {
-        map.get(Number(monkeyId)).items.push(...items);
-      });
-
-      // logDebug("");
-    });
+    monkeys.forEach(evaluateMonkey(areYouRelievedAfterThrow, timesUsed));
 
     if (areYouRelievedAfterThrow) {
       logDebug("round", round + 1, "ends");
       displayMonkeys(monkeys);
       logDebug();
     } else {
-      logDebug("== After round", round + 1, "==");
+      logDebug(`== After round ${round + 1} ==`);
       timesUsed.forEach((times, id) => {
         logDebug("Monkey", id, "inspected items", times, "times.");
       });
@@ -230,7 +225,8 @@ function getMonkeyBussiness({
 
 const Rounds = {
   first: 20,
-  second: 10_000,
+  // second: 10_000,
+  second: 20,
 } as const;
 
 function main({ star, day, type }: MainProps) {

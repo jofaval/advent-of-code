@@ -1,0 +1,21 @@
+[project]
+name = "aoc_2015_jofaval"
+version = "0.0.1"
+authors = [
+  { name="Pepe Fabra Valverde", email="contact@github.com" },
+]
+description = "Solutions to the Advent of Code's 2015 challenges written in Python"
+readme = "README.md"
+requires-python = ">=3.8.4"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/jofaval/advent-of-code/tree/master/2015"
+"Bug Tracker" = "https://github.com/jofaval/advent-of-code/issues"
+
+[tool.setuptools]
+py-modules = []

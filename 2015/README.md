@@ -6,10 +6,14 @@
 
 1. [Background](#background)
 1. [Installation](#installation)
+   1. [Using a Virtual Environment](#using-a-virtual-environment)
 1. [CLI](#cli)
    1. [Structure](#structure)
    1. [Create a day](#create-a-day)
    1. [Run a day](#run-a-day)
+1. [Package your python code](#package-your-python-code)
+   1. [Install all the necessary packages](#install-all-the-necessary-packages)
+   1. [Step by step](#step-by-step)
 
 ## Background
 
@@ -32,6 +36,24 @@ For the installation of any packages required in this project, run the following
 python -m pip install -r requirements.txt
 # linux version
 pip3 install -r requirements.txt
+```
+
+And checkout how to generate the package build at [Step by step](#step-by-step).
+
+### Using a Virtual Environment
+
+[Back to the contents](#contents)
+
+Initialize it
+
+```bash
+python -m venv aoc_2015_jofaval
+```
+
+Activate (use) your newly create venv:
+
+```bash
+source aoc_2015_jofaval/Scripts/activate
 ```
 
 ## CLI
@@ -74,3 +96,50 @@ python3 --action run --day 1
 # or the shortcut version
 python3 -a run -d 1
 ```
+
+## Package your python code
+
+[Back to the contents](#contents)
+
+Official docs at: [https://packaging.python.org/en/latest/tutorials/packaging-projects/](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
+
+### Install all the necessary packages
+
+[Back to the contents](#contents)
+
+Refer to [Installation](#installation).
+
+### Step by step
+
+[Back to the contents](#contents)
+
+This step by step "guide" assumes that you've already created the [pyproject.toml](./pyproject.toml) file.
+
+This will be done in Windows (my current OS), but they provide the Linux guide by default.
+
+1. Upgrade pip
+   ```bash
+   py -m pip install --upgrade pip
+   ```
+1. Make sure you have a [pyproject.toml](./pyproject.toml) file created
+1. Upgrade the build package
+   ```bash
+   py -m pip install --upgrade build
+   ```
+1. Generate the distribution files
+   ```bash
+   py -m build
+   ```
+1. **_[Optional]_** Upgrade/install the `twine` package
+   ```bash
+   py -m pip install --upgrade twine
+   ```
+1. **_[Optional]_** And upload it to the registry
+   ```bash
+   py -m twine upload --repository testpypi dist/*
+   ```
+1. **_[Optional]_** Actually install your package
+   ```bash
+   py -m pip install --index-url https://test.pypi.org/simple/ --no-deps aoc_2015_jofaval
+   ```
+1. Profit!

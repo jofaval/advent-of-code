@@ -4,6 +4,9 @@ https://adventofcode.com/2015/day/6
 """
 
 # types
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 import numpy as np
 from functools import wraps
 import time
@@ -125,7 +128,10 @@ TGrid = np.ndarray
 
 @result_wrapper
 @benchmark
-def main() -> None:
+def main(
+    # This will generate an image if True, if you want one
+    with_image: bool = False
+) -> None:
     """Main flow of execution"""
     challenge = AdventOfCodeChallenge(
         day=6,
@@ -144,7 +150,28 @@ def main() -> None:
         grid, instructions, actual_translation=challenge['star'] == Star.SECOND
     )
 
+    if with_image and challenge['star'] == Star.SECOND:
+        generate_image(grid)
+
     return count_lit_lights(grid)
+
+
+def generate_image(grid: TGrid) -> None:
+    """Generates an image for the given grid"""
+    plt.figure(figsize=(20, 20))
+    axes = sns.heatmap(
+        grid,
+        center=0,  # saturates the color if commented
+        yticklabels=False,
+        xticklabels=False,
+        cbar=False,
+        square=True,
+
+    )
+    axes.tick_params(bottom=False, left=False)
+    axes.get_figure().savefig(
+        join(get_day_path(6), 'output.png'), dpi=400
+    )
 
 
 def count_lit_lights(grid: TGrid) -> int:

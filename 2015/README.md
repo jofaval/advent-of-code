@@ -89,7 +89,7 @@ And replace `__CHANGE_DAY__` for the day you want (`1`, `2`, `3`, etc.)
 
 [Back to the contents](#contents)
 
-This would be my proposal, it's still not finalized
+It's a "slower" version than other languages, because it dynamically imports the required module, as it computes it on runtime, it's that much slower.
 
 ```bash
 python3 --action run --day 1

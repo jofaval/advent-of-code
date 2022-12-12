@@ -38,7 +38,7 @@ def get_basepath() -> str:
 
 def get_day_path(day: int) -> str:
     """Gets the path for a given day"""
-    return join(get_basepath(), f"day-{pad(day)}")
+    return join(get_basepath(), f"day_{pad(day)}")
 
 
 def read(challenge: AdventOfCodeChallenge) -> str:
@@ -48,7 +48,7 @@ def read(challenge: AdventOfCodeChallenge) -> str:
     )
     if not exists(data_path):
         raise Exception(
-            f"The {challenge['input'].value} file for {pad(challenge['day'])} was not found"
+            f"The {challenge['input'].value} file for \"day_{pad(challenge['day'])}\" was not found"
         )
 
     with open(data_path, encoding='utf-8') as reader:

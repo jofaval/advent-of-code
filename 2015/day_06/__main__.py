@@ -130,7 +130,7 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=6,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
@@ -167,63 +167,47 @@ def parse_instructions(raw: List[str], delimiter: str = " ") -> List[Instruction
     return instructions
 
 
+# lit status
 UNLIT = -1
 LIT_OFF = 0
 LIT_ON = 1
 ULTRA_LIT_ON = 2
 
 
-def traditionally_toggle_lights(grid: TGrid, start: Range, end: Range) -> TGrid:
-    """Traditionally toggle all of the lights"""
-    wanted_range = grid[start[0]:end[0]+1, start[1]:end[1] + 1]
+ActualTranslationDict = {
+    ActionEnum.TURN_OFF.value: UNLIT,
+    ActionEnum.TURN_ON.value: LIT_ON,
+    ActionEnum.TOGGLE.value: ULTRA_LIT_ON,
+}
 
-    # could be optimized by not using an aux instruction
-    wanted_range *= UNLIT
-    wanted_range[wanted_range == LIT_OFF] = LIT_ON
-    wanted_range[wanted_range == UNLIT] = LIT_OFF
-
-    return grid
+WrongTranslationDict = {
+    ActionEnum.TURN_OFF.value: LIT_OFF,
+    ActionEnum.TURN_ON.value: LIT_ON,
+}
 
 
-def evaluate_instructions(grid: TGrid, instructions: List[Instruction], actual_translation: bool = False) -> TGrid:
+def evaluate_instructions(
+    grid: TGrid,
+    instructions: List[Instruction],
+    actual_translation: bool = False
+) -> TGrid:
     """Evaluate all of the instructions"""
     for ins in instructions:
         s_x, s_y = ins['start_range']
         e_x, e_y = ins['end_range']
         action = ins['action']
 
-        # each light can have a brightness of zero or more, only positives
-        grid = np.maximum(grid, 0)
+        target_range = grid[s_x:(e_x + 1), s_y:(e_y + 1)]
 
         if actual_translation:
-            value = LIT_OFF
-
-            if action == ActionEnum.TURN_OFF.value:
-                value = UNLIT
-            elif action == ActionEnum.TURN_ON.value:
-                value = LIT_ON
-            elif action == ActionEnum.TOGGLE.value:
-                value = ULTRA_LIT_ON
-
-            grid[s_x:e_x+1, s_y:e_y+1] += value
-            continue
-
-        if action == ActionEnum.TOGGLE.value:
-            grid = traditionally_toggle_lights(
-                grid, ins['start_range'], ins['end_range']
-            )
+            target_range += ActualTranslationDict[action]
+        elif action == ActionEnum.TOGGLE.value:
+            target_range = np.where(target_range == LIT_OFF, LIT_ON, LIT_OFF)
         else:
-            value = LIT_OFF
+            target_range = WrongTranslationDict[action]
 
-            if action == ActionEnum.TURN_OFF.value:
-                value = LIT_OFF
-            elif action == ActionEnum.TURN_ON.value:
-                value = LIT_ON
-
-            grid[s_x:e_x+1, s_y:e_y+1] = value
-
-    # each light can have a brightness of zero or more, only positives
-    grid = np.maximum(grid, 0)
+        # each light can have a brightness of zero or more, only positives
+        grid = np.maximum(grid, 0)
 
     return grid
 

@@ -206,11 +206,11 @@ def evaluate_instructions(
             target_range[target_range == LIT_OFF] = LIT_ON
             target_range[target_range == UNLIT] = LIT_OFF
         else:
-            grid[s_x:(e_x + 1), s_y:(e_y + 1)] = WrongTranslationDict[action]
+            target_range[True] = WrongTranslationDict[action]
 
         if actual_translation and action == ActionEnum.TURN_OFF.value:
             # each light can have a brightness of zero or more, only positives
-            grid = np.maximum(grid, 0)
+            target_range[target_range < 0] = LIT_OFF
 
     return grid
 

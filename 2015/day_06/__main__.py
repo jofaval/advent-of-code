@@ -202,12 +202,15 @@ def evaluate_instructions(
         if actual_translation:
             target_range += ActualTranslationDict[action]
         elif action == ActionEnum.TOGGLE.value:
-            target_range = np.where(target_range == LIT_OFF, LIT_ON, LIT_OFF)
+            target_range[target_range == LIT_ON] = UNLIT
+            target_range[target_range == LIT_OFF] = LIT_ON
+            target_range[target_range == UNLIT] = LIT_OFF
         else:
-            target_range = WrongTranslationDict[action]
+            grid[s_x:(e_x + 1), s_y:(e_y + 1)] = WrongTranslationDict[action]
 
-        # each light can have a brightness of zero or more, only positives
-        grid = np.maximum(grid, 0)
+        if actual_translation and action == ActionEnum.TURN_OFF.value:
+            # each light can have a brightness of zero or more, only positives
+            grid = np.maximum(grid, 0)
 
     return grid
 

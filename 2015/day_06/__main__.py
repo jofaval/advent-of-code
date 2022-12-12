@@ -130,7 +130,7 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=6,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
@@ -140,16 +140,11 @@ def main() -> None:
     grid = generate_grid(rows, cols, initial_lit_status=False)
 
     instructions = parse_instructions(content.split("\n"))
-    grid = evaluate_instructions(grid, instructions)
+    grid = evaluate_instructions(
+        grid, instructions, actual_translation=challenge['star'] == Star.SECOND
+    )
 
-    result = None
-
-    if challenge['star'] == Star.FIRST:
-        result = count_lit_lights(grid)
-    elif challenge['star'] == Star.SECOND:
-        raise Exception("No result was prepared")
-
-    return result
+    return count_lit_lights(grid)
 
 
 def count_lit_lights(grid: TGrid) -> int:
@@ -174,26 +169,62 @@ def parse_instructions(raw: List[str], delimiter: str = " ") -> List[Instruction
 
 LIT_OFF = 0
 LIT_ON = 1
+ULTRA_LIT_ON = 2
+DOWN_LITNESS = -1
 
 
-def evaluate_instructions(grid: TGrid, instructions: List[Instruction]) -> TGrid:
+def traditionally_toggle_lights(grid: TGrid, start: Range, end: Range) -> TGrid:
+    """Traditionally toggle all of the lights"""
+    # TODO: optimize with numpy and proper slice range optimizations, vecotrizations?
+    for r_index in range(start[0], end[0] + 1):
+        for c_index in range(start[1], end[1] + 1):
+            # if True = 1; if False = 0;
+            grid[r_index][c_index] = int(
+                not bool(grid[r_index][c_index])
+            )
+
+    return grid
+
+
+def evaluate_instructions(grid: TGrid, instructions: List[Instruction], actual_translation: bool = False) -> TGrid:
     """Evaluate all of the instructions"""
     for ins in instructions:
         s_x, s_y = ins['start_range']
         e_x, e_y = ins['end_range']
         action = ins['action']
 
-        # TODO: optimize with numpy and proper slice range optimizations, vecotrizations?
-        for r_index in range(s_x, e_x+1):
-            for c_index in range(s_y, e_y+1):
-                if action == ActionEnum.TURN_OFF.value:
-                    grid[r_index][c_index] = LIT_OFF
-                elif action == ActionEnum.TURN_ON.value:
-                    grid[r_index][c_index] = LIT_ON
-                elif action == ActionEnum.TOGGLE.value:
-                    value = grid[r_index][c_index]
-                    # if True = 1; if False = 0;
-                    grid[r_index][c_index] = int(not bool(value))
+        # each light can have a brightness of zero or more, only positives
+        grid = np.maximum(grid, 0)
+
+        if actual_translation:
+            value = LIT_OFF
+
+            if action == ActionEnum.TURN_OFF.value:
+                value = DOWN_LITNESS
+            elif action == ActionEnum.TURN_ON.value:
+                value = LIT_ON
+            elif action == ActionEnum.TOGGLE.value:
+                value = ULTRA_LIT_ON
+
+            grid[s_x:e_x+1, s_y:e_y+1] += value
+            continue
+
+        if action != ActionEnum.TOGGLE.value:
+            value = LIT_OFF
+
+            if action == ActionEnum.TURN_OFF.value:
+                value = LIT_OFF
+            elif action == ActionEnum.TURN_ON.value:
+                value = LIT_ON
+
+            grid[s_x:e_x+1, s_y:e_y+1] = value
+
+        grid = traditionally_toggle_lights(
+            grid, ins['start_range'], ins['end_range']
+        )
+
+    # each light can have a brightness of zero or more, only positives
+    grid = np.maximum(grid, 0)
 
     return grid
 

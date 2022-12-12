@@ -118,9 +118,9 @@ def main() -> None:
     result = None
 
     if challenge['star'] == Star.FIRST:
-        result = 0
+        raise Exception("No result was prepared")
     elif challenge['star'] == Star.SECOND:
-        result = 1
+        raise Exception("No result was prepared")
 
     return result
 

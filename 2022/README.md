@@ -93,4 +93,5 @@ All files should follow the following structure:
 1. [Day 9](./day-09/)
 1. [Day 10](./day-10/)
 1. [Day 11](./day-11/)
+1. [Day 12](./day-12/)
 <!-- Next day -->

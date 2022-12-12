@@ -1,32 +1,14 @@
+"""
+Advent of Code 2015 files "interpretation"
+"""
+
 # system
 from os.path import join, dirname, exists
+import re
 # types
-from enum import Enum
-from typing import TypedDict
-
-
-def pad(day: int, zeros: int = 2) -> str:
-    """The day padding"""
-    return str(day).zfill(zeros)
-
-
-class Star(Enum):
-    """Type of star to evaluate"""
-    FIRST = "first"
-    SECOND = "second"
-
-
-class Input(Enum):
-    """Type of input to read from"""
-    TEST = 'test'
-    PROD = 'prod'
-
-
-class AdventOfCodeChallenge(TypedDict):
-    """Challenge details for each day"""
-    day: int
-    star: Star
-    input: Input
+from .advent_types import Star, Input, AdventOfCodeChallenge
+# utils
+from .advent_utils import pad
 
 
 def get_basepath() -> str:
@@ -57,5 +39,8 @@ def read(challenge: AdventOfCodeChallenge) -> str:
     if len(content.strip()) <= 0:
         raise Exception(
             f"The content file for {pad(challenge['day'])} is empty")
+
+    # trim_end
+    content = re.sub(r'\s$', '', content)
 
     return content

@@ -1,6 +1,10 @@
 {
   "prettier.endOfLine": "lf",
+  // 2021 - Go(lang)
   "gopls": {
     "experimentalWorkspaceModule": true
-  }
+  },
+  // 2015 - Python
+  "python.autoComplete.extraPaths": ["./2015"],
+  "python.analysis.extraPaths": ["./2015"]
 }

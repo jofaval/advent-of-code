@@ -56,13 +56,36 @@ Activate (use) your newly create venv:
 source aoc_2015_jofaval/Scripts/activate
 ```
 
+And once again install all of the packages:
+
+```bash
+# windows version
+python -m pip install -r requirements.txt
+# linux version
+pip3 install -r requirements.txt
+```
+
 ## CLI
 
 [Back to the contents](#contents)
 
 As I've done with [2022](https://github.com/jofaval/advent-of-code/tree/master/2022) and [2021](https://github.com/jofaval/advent-of-code/tree/master/2022) I wanted to create a CLI.
 
-But python's packaging doesn't allow for the flexibility I was provided with in previous languages (Typescript and Golang)
+But python's packaging doesn't allow for the flexibility I was provided with in previous languages (Typescript and Golang).
+
+As a little reminder.
+
+```bash
+# On Windows you may do something like:
+python ... # or py ...
+pip # or pyhthon -m pip
+
+# While on Linux/Unix systems, you'll probably have to:
+python3 ...
+pip3 # or pyhthon3 -m pip3
+```
+
+Linux/Unix systems have python 2.7.x already integrated by default, or something along the lines.
 
 ### Structure
 
@@ -74,16 +97,16 @@ _To be fully defined_
 
 [Back to the contents](#contents)
 
-This would be my proposal, it's still not finalized
-
 ```bash
-python3 --action create --day 1
+python main.py --action create --day 1
 # or the shortcut version
-python3 -a create -d 1
+python main.py -a create -d 1
 ```
 
-Until it's finally realized, the flow is to copy the [`__template__`](./__template__/) folder.
-And replace `__CHANGE_DAY__` for the day you want (`1`, `2`, `3`, etc.)
+Or you can manually do so by following these steps:
+
+1. The flow is to copy the [`__template__`](./__template__/) folder.
+1. And replace `__CHANGE_DAY__` for the day you want (`1`, `2`, `3`, etc.)
 
 ### Run a day
 
@@ -92,14 +115,16 @@ And replace `__CHANGE_DAY__` for the day you want (`1`, `2`, `3`, etc.)
 It's a "slower" version than other languages, because it dynamically imports the required module, as it computes it on runtime, it's that much slower.
 
 ```bash
-python3 --action run --day 1
+python main.py --action run --day 1
 # or the shortcut version
-python3 -a run -d 1
+python main.py -a run -d 1
 ```
 
 ## Package your python code
 
 [Back to the contents](#contents)
+
+**_It's not used in this repository/project_**
 
 Official docs at: [https://packaging.python.org/en/latest/tutorials/packaging-projects/](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 

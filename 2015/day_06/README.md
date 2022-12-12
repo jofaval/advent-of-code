@@ -16,7 +16,7 @@ For example:
 
 After following the instructions, **how many lights are lit?**
 
-Your puzzle answer was 377891.
+Your puzzle answer was `377891`.
 
 **The first half of this puzzle is complete! It provides one gold star: \***
 

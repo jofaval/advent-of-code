@@ -11,9 +11,6 @@ from enum import Enum
 from typing import List, Tuple, TypedDict
 # vectorization
 import numpy as np
-# plotters
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # core
 from ..core import Input, Star, read, AdventOfCodeChallenge, result_wrapper, benchmark, get_day_path
@@ -71,6 +68,10 @@ def main(
 
 def generate_image(grid: TGrid) -> None:
     """Generates an image for the given grid"""
+    # plotters, only required when generating an image
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
     plt.figure(figsize=(20, 20))
     axes = sns.heatmap(
         grid,

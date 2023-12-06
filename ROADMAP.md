@@ -36,12 +36,16 @@ Java (oh God no, please save me!!), maybe Kotlin?
 
 C++ (I did a codecademy complete course on it... aaaand that's it!!)
 
+## 2023
+
+C
+
 ## Ones I would like to try for future years
 
 Or that I'll be on the look for
 
 - Rust (duh!)
-- C? or Carbon?
+- Carbon?
 - Zig?
 - I've seen some SQL challenges run-throughs
 - Swift, I don't even a MacOS

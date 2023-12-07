@@ -24,9 +24,14 @@
 #define DAY_DOES_NOT_EXIST 4
 #define FILE_SEPARATOR "/"
 
+int parse_int(char *numeric, int base = 10)
+{
+    return strtol(numeric, (char **)NULL, base)
+}
+
 int validate_day(char *day)
 {
-    int int_day = strtol(day, (char **)NULL, 10);
+    int int_day = parse_int(day);
     if (int_day >= MIN_DAY && int_day <= MAX_DAY)
     {
         return VALID;
@@ -56,6 +61,14 @@ char *get_file_path_from_day(char *day, char *filepath)
 
     strcat(filepath, cwd);
     strcat(filepath, FILE_SEPARATOR);
+    strcat(filepath, "day_");
+
+    // z-fill
+    if (parse_int(day) < 10)
+    {
+        strcat(filepath, "0");
+    }
+
     strcat(filepath, day);
 
     return filepath;

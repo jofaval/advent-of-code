@@ -52,3 +52,4 @@ Or that I'll be on the look for
 - Scala
 - Kotlin
 - R, might actually be a great idea for algorithms
+- Haskell

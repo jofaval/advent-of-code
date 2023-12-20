@@ -19,9 +19,14 @@ HEXADECIMAL = re.compile(r"\\x\d{1,2}")
 
 # MERGED = re.compile(r"("+BACKLASH+"|"+DOUBLE_QUOTE+"|"+HEXADECIMAL+")+")
 
+DEBUG = {
+    "CONDITIONS": False,
+    "ITERATION_LINE": True
+}
 
-def is_numeric(char: str) -> bool:
-    return re.match(r"\d", char) is not None
+
+def is_hexadecimal(char: str) -> bool:
+    return re.match(r"(\d|[a-f])", char) is not None
 
 
 MAGIC_CHARACTERS = ["\"", "\\"]
@@ -42,54 +47,69 @@ class Line(BaseModel):
         hex_stack = []
 
         for char in self.raw[1:-1]:
-            print(char)
+            if DEBUG["CONDITIONS"]:
+                print(char)
             if was_last_char_hex:
-                print("if was_last_char_hex")
-                if is_numeric(char):
-                    print("if is_numeric(char):")
+                if DEBUG["CONDITIONS"]:
+                    print("if was_last_char_hex")
+                if is_hexadecimal(char):
+                    if DEBUG["CONDITIONS"]:
+                        print("if is_hexadecimal(char):")
                     if len(hex_stack) < 1:
-                        print('if len(hex_stack) < 1:')
+                        if DEBUG["CONDITIONS"]:
+                            print('if len(hex_stack) < 1:')
                         hex_stack.append(char)
                     else:
-                        print('else not len(hex_stack) < 1:')
+                        if DEBUG["CONDITIONS"]:
+                            print('else not len(hex_stack) < 1:')
                         mutable += HEX_CHAR
                         was_last_char_hex = False
                         hex_stack.clear()
                 elif len(hex_stack) == 0:
-                    print('elif len(hex_stack) == 0:')
+                    if DEBUG["CONDITIONS"]:
+                        print('elif len(hex_stack) == 0:')
                     mutable += "\\x" + char
                     was_last_char_hex = False
                 else:
                     mutable += HEX_CHAR + char
                     hex_stack.clear()
             elif was_last_char_bar:
-                print("elif was_last_char_bar")
+                if DEBUG["CONDITIONS"]:
+                    print("elif was_last_char_bar")
                 if char in MAGIC_CHARACTERS:
-                    print('if char in MAGIC_CHARACTERS:')
+                    if DEBUG["CONDITIONS"]:
+                        print('if char in MAGIC_CHARACTERS:')
                     mutable += char
                 elif char == "x":
-                    print('elif char == "x":')
+                    if DEBUG["CONDITIONS"]:
+                        print('elif char == "x":')
                     was_last_char_hex = True
                 else:
-                    print('else:')
+                    if DEBUG["CONDITIONS"]:
+                        print('else:')
                     mutable += char
             elif char != "\\":
-                print('elif char != "\\":')
+                if DEBUG["CONDITIONS"]:
+                    print('elif char != "\\":')
                 mutable += char
             else:
-                print('is a bar')
+                if DEBUG["CONDITIONS"]:
+                    print('is a bar')
 
-            print("")
+            if DEBUG["CONDITIONS"]:
+                print("")
             was_last_char_bar = char == "\\"
 
         if was_last_char_hex and len(hex_stack) != 0:
-            print("if was_last_char_hex and len(hex_stack) != 0:")
+            if DEBUG["CONDITIONS"]:
+                print("if was_last_char_hex and len(hex_stack) != 0:")
             mutable += HEX_CHAR
 
-        print({
-            "raw": self.raw,
-            "mutable": mutable,
-        })
+        if DEBUG["ITERATION_LINE"]:
+            print({
+                "raw": self.raw,
+                "mutable": mutable,
+            })
 
         return mutable
 
@@ -114,12 +134,14 @@ def main() -> None:
 
     lines: List[Line] = [
         # Line(raw='"a\\\\a"').evaluate()
+        # Line(raw='"\\x27"').evaluate()
+        Line(raw='"qludrkkvljljd\\\\xvdeum\\x4e"').evaluate()
     ]
-    for raw_line in content.splitlines():
-        line = Line(raw=raw_line)
-        line.evaluate()
+    # for raw_line in content.splitlines():
+    #     line = Line(raw=raw_line)
+    #     line.evaluate()
 
-        lines.append(line)
+    #     lines.append(line)
 
     result = None
 
@@ -128,6 +150,12 @@ def main() -> None:
         total_in_memory_characters = 0
 
         for line in lines:
+            if DEBUG["ITERATION_LINE"]:
+                print({
+                    "line": line.raw,
+                    "code_len": line.code_len,
+                    "in_memory_len": line.in_memory_len,
+                })
             total_code_characters += line.code_len
             total_in_memory_characters += line.in_memory_len
 

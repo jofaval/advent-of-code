@@ -313,6 +313,24 @@ class OperationStack:
                 if DEBUG:
                     print("")
 
+    def reset(self, except_for: List[str] = None):
+        for operation in self.operations:
+            operation.executed = False
+
+        print("before reset", self.stash)
+        self.stash = {
+            key: value
+            for key, value in self.stash.items()
+            if except_for is None or key in except_for
+        }
+        print("after reset", self.stash)
+
+        for key in except_for:
+            self.get_by_pointer(key).executed = True
+
+    def rewire(self):
+        self.stash["b"] = self.stash["a"]
+
 
 @result_wrapper
 @benchmark
@@ -321,7 +339,7 @@ def main() -> None:
     challenge = AdventOfCodeChallenge(
         day=7,
         input=Input.PROD,
-        star=Star.FIRST
+        star=Star.SECOND
     )
 
     content = read(challenge)
@@ -329,17 +347,15 @@ def main() -> None:
     operation_stack = OperationStack()
 
     try:
-        if challenge['star'] == Star.FIRST:
-            for line in content.split("\n"):
-                operation_stack.parse_line(line)
-            operation_stack.process()
+        for line in content.split("\n"):
+            operation_stack.parse_line(line)
 
-            desired_value = from_uint16(operation_stack.stash["a"])
-            print(f"Value for \"a\" is: {desired_value}")
-        elif challenge['star'] == Star.SECOND:
-            raise Exception(
-                f"No result was prepared for the {Star.SECOND.value} star."
-            )
+        operation_stack.process()
+
+        if challenge['star'] == Star.SECOND:
+            operation_stack.rewire()
+            operation_stack.reset(except_for=["b"])
+            operation_stack.process()
     except Exception as error:
         print(error)
 

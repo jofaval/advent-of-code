@@ -3,8 +3,12 @@ Day 7
 https://adventofcode.com/2015/day/7
 """
 
+import enum
 import re
-from typing import List
+import traceback
+from typing import List, Optional, Union
+
+from pydantic import BaseModel
 
 # core
 from ..core import (AdventOfCodeChallenge, Input, Star, benchmark, read,
@@ -15,34 +19,39 @@ DEBUG = True
 
 
 def is_numeric(value: str) -> bool:
-    return re.search(r"\d+", value) is not None
+    if value is None:
+        return False
+
+    return re.search(r"\d+", str(value)) is not None
 
 
 def bitwise_uint16_and(first, second):
     """bitwise uint16 AND implementation"""
     return [
-        int(first_value == 1 and second[i] == 1)
-        for i, first_value in enumerate(first)
+        int(first_value == 1 and second_value == 1)
+        for first_value, second_value in zip(first, second)
     ]
 
 
 def bitwise_uint16_lshift(first, second: int):
     """inefficient bitwise uint16 LSHIFT implementation"""
-    result = [*first]
+    result = list(first)
 
     for _ in range(0, second):
-        result = [*result[1:], 0]
+        result = result[1:]
+        result.append(0)
 
     return result
 
 
 def bitwise_uint16_rshift(first, second: int):
     """inefficient bitwise uint16 RSHIFT implementation"""
-    result = [*first]
+    result = list(first)
 
     for _ in range(0, second):
-        result.pop()
-        result = [0, *result[:-1]]
+        aux = list(result)
+        result = [0]
+        result.extend(aux[:-1])
 
     return result
 
@@ -55,24 +64,49 @@ def bitwise_uint16_not(first):
 def bitwise_uint16_or(first, second):
     """bitwise uint16 OR implementation"""
     return [
-        int(first_value == 1 or second[i] == 1)
-        for i, first_value in enumerate(first)
+        int(first_value == 1 or second_value == 1)
+        for first_value, second_value in zip(first, second)
     ]
 
 
-def evaluate_operation(operation: str, first: int, second: int = None):
+class Action(enum.Enum):
+    AND = "AND"
+    LSHIFT = "LSHIFT"
+    RSHIFT = "RSHIFT"
+    NOT = "NOT"
+    OR = "OR"
+    SAVE = "SAVE"
+
+
+def to_action_enum(action: str):
+    if action == "AND":
+        return Action.AND
+    elif action == "LSHIFT":
+        return Action.LSHIFT
+    elif action == "RSHIFT":
+        return Action.RSHIFT
+    elif action == "NOT":
+        return Action.NOT
+    elif action == "OR":
+        return Action.OR
+    elif action == "SAVE":
+        return Action.SAVE
+
+
+def evaluate_action(action: str, first: int, second: int = None):
     """bitwise operations"""
     if DEBUG:
-        print({"first": first, "second": second})
-    if operation == "AND":
+        print("evaluate action", {"first": first, "second": second})
+
+    if action == Action.AND:
         return bitwise_uint16_and(first, second)
-    elif operation == "LSHIFT":
+    elif action == Action.LSHIFT:
         return bitwise_uint16_lshift(first, second)
-    elif operation == "RSHIFT":
+    elif action == Action.RSHIFT:
         return bitwise_uint16_rshift(first, second)
-    elif operation == "NOT":
+    elif action == Action.NOT:
         return bitwise_uint16_not(first)
-    elif operation == "OR":
+    elif action == Action.OR:
         return bitwise_uint16_or(first, second)
 
 
@@ -93,6 +127,8 @@ def to_uint16(number: int):
 
 def from_uint16(uint16: List[int]):
     total = 0
+    if uint16 is None:
+        return total
 
     for i, n in enumerate(uint16):
         if n == 0:
@@ -102,18 +138,25 @@ def from_uint16(uint16: List[int]):
     return total
 
 
-def safe_evaluation(stash: dict, operation: str, first: int, second: int = None):
+def safe_parse(value: str, action: Action):
+    if action == Action.RSHIFT or action == Action.LSHIFT:
+        return int(value)
+
+    return to_uint16(int(value))
+
+
+def safe_evaluation(stash: dict, action: Action, first: int, second: int = None):
     """bitwise operations wrapper"""
     if DEBUG:
         print("safe_evaluation", {
-            "operation": operation,
+            "operation": action,
             "first": first,
             "second": second
         })
 
     first_value = None
     if is_numeric(first):
-        first_value = int(first)
+        first_value = safe_parse(value=first, action=action)
     else:
         first_value = stash[first]
 
@@ -121,7 +164,7 @@ def safe_evaluation(stash: dict, operation: str, first: int, second: int = None)
     if second is None:
         second_value = None
     elif is_numeric(second):
-        second_value = int(second)
+        second_value = safe_parse(value=second, action=action)
     else:
         second_value = stash[second]
 
@@ -130,7 +173,145 @@ def safe_evaluation(stash: dict, operation: str, first: int, second: int = None)
             "first_value": first_value,
             "second_value": second_value
         })
-    return evaluate_operation(operation, first_value, second_value)
+    return evaluate_action(action, first_value, second_value)
+
+
+class Operation(BaseModel):
+    pointer: str
+    first: Union[int, str]
+    second: Union[int, str] = None
+    action: Action
+    executed: bool = False
+
+
+COUNT = 0
+
+
+class OperationStack:
+    operations: List[Operation]
+    stash: dict
+
+    def __init__(self):
+        self.operations = []
+        self.stash = dict()
+
+    def is_pointer_assigned(self, pointer: str):
+        operation = self.get_by_pointer(pointer)
+        if not operation:
+            return False
+
+        return operation.executed
+
+    def execute(self, operation: Union[Operation, None]):
+        if DEBUG:
+            print("execution", operation)
+
+        if not operation or operation.executed:
+            return
+
+        self.validate_pointer(operation.first)
+        self.validate_pointer(operation.second)
+
+        if operation.action == Action.SAVE:
+            value = None
+
+            if is_numeric(operation.first):
+                value = to_uint16(int(operation.first))
+            else:
+                value = self.stash[operation.first]
+
+            self.stash[operation.pointer] = value
+            return
+
+        # self.validate_pointer(operation.pointer)
+
+        self.stash[operation.pointer] = safe_evaluation(
+            stash=self.stash,
+            action=operation.action,
+            first=operation.first,
+            second=operation.second
+        )
+        operation.executed = True
+
+    def validate_pointer(self, pointer: str):
+        operation = self.get_by_pointer(pointer)
+        if pointer is None or is_numeric(pointer) or operation.executed:
+            return
+
+        self.execute(operation)
+
+    def get_by_pointer(self, pointer: str):
+        for operation in self.operations:
+            if operation.pointer == pointer:
+                return operation
+
+        return None
+
+    def get_by_first(self, first: Union[int, str]):
+        for operation in self.operations:
+            if operation.first == first:
+                return operation
+
+        return None
+
+    def get_by_second(self, second: Union[int, str]):
+        for operation in self.operations:
+            if operation.second == second:
+                return operation
+
+        return None
+
+    def parse_line(self, line: str):
+        operation = None
+        action, pointer = line.split(POINTER_SEPARATOR)
+
+        if re.search(r"(\w+|\d+)\s\w+\s(\w+|\d+)", action) is not None:
+            first, action, second = action.split(" ")
+            if DEBUG:
+                print(first, action, second)
+            operation = Operation(
+                first=first,
+                second=second,
+                action=to_action_enum(action),
+                pointer=pointer
+            )
+        elif re.search(r"\w+\s(\w+|\d+)", action) is not None:
+            action, first = action.split(" ")
+            operation = Operation(
+                first=first,
+                action=to_action_enum(action),
+                pointer=pointer
+            )
+        else:
+            operation = Operation(
+                first=action,
+                action=Action.SAVE,
+                pointer=pointer
+            )
+
+        if operation:
+            self.operations.append(operation)
+
+        if DEBUG:
+            print(line)
+            # print(self.stash)
+            print("")
+
+    def process(self):
+        for operation in self.operations:
+            if operation.executed:
+                continue
+
+            if DEBUG:
+                print(operation)
+
+            try:
+                self.execute(operation)
+            except Exception as e:
+                print(traceback.format_exc())
+            finally:
+                if DEBUG:
+                    print("")
 
 
 @result_wrapper
@@ -145,32 +326,16 @@ def main() -> None:
 
     content = read(challenge)
 
-    result = None
-    stash = dict()
+    operation_stack = OperationStack()
 
     try:
         if challenge['star'] == Star.FIRST:
             for line in content.split("\n"):
-                operation, address = line.split(POINTER_SEPARATOR)
-                if re.search(r"(\w+|\d+)\s\w+\s(\w+|\d+)", operation) is not None:
-                    first, action, second = operation.split(" ")
-                    if DEBUG:
-                        print(first, action, second)
-                    stash[address] = safe_evaluation(
-                        stash, action, first, second)
-                elif re.search(r"\w+\s(\w+|\d+)", operation) is not None:
-                    action, first = operation.split(" ")
-                    if DEBUG:
-                        print(first, action)
-                    stash[address] = safe_evaluation(stash, action, first)
-                else:
-                    value = operation
-                    stash[address] = to_uint16(int(value))
+                operation_stack.parse_line(line)
+            operation_stack.process()
 
-                if DEBUG:
-                    print(line)
-                    print(stash)
-                    print("")
+            desired_value = from_uint16(operation_stack.stash["a"])
+            print(f"Value for \"a\" is: {desired_value}")
         elif challenge['star'] == Star.SECOND:
             raise Exception(
                 f"No result was prepared for the {Star.SECOND.value} star."
@@ -180,7 +345,7 @@ def main() -> None:
 
     parsed_stash = {
         key: from_uint16(value)
-        for key, value in stash.items()
+        for key, value in operation_stack.stash.items()
     }
     return parsed_stash
 

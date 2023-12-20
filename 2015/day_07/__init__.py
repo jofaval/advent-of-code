@@ -6,7 +6,7 @@ https://adventofcode.com/2015/day/7
 import enum
 import re
 import traceback
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -328,8 +328,10 @@ class OperationStack:
         for key in except_for:
             self.get_by_pointer(key).executed = True
 
-    def rewire(self):
-        self.stash["b"] = self.stash["a"]
+    def rewire(self, instructions: Dict[str, List[str]]):
+        for origin, targets in instructions.items():
+            for target in targets:
+                self.stash[target] = self.stash[origin]
 
 
 @result_wrapper
@@ -353,7 +355,7 @@ def main() -> None:
         operation_stack.process()
 
         if challenge['star'] == Star.SECOND:
-            operation_stack.rewire()
+            operation_stack.rewire({"a": ["b"]})
             operation_stack.reset(except_for=["b"])
             operation_stack.process()
     except Exception as error:

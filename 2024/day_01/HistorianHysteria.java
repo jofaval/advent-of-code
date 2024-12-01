@@ -21,18 +21,20 @@ public class HistorianHysteria {
             e.printStackTrace();
         }
 
-        // Sort both lists
-        Collections.sort(leftList);
-        Collections.sort(rightList);
-
-        // Calculate total distance
-        int totalDistance = 0;
-        for (int i = 0; i < leftList.size(); i++) {
-            totalDistance += Math.abs(leftList.get(i) - rightList.get(i));
+        // Create frequency map for right list
+        Map<Integer, Integer> rightFrequencyMap = new HashMap<>();
+        for (int num : rightList) {
+            rightFrequencyMap.put(num, rightFrequencyMap.getOrDefault(num, 0) + 1);
         }
 
-        // Print the total distance
-        System.out.println("Total Distance: " + totalDistance);
+        // Calculate similarity score
+        int similarityScore = 0;
+        for (int num : leftList) {
+            similarityScore += num * rightFrequencyMap.getOrDefault(num, 0);
+        }
+
+        // Print the similarity score
+        System.out.println("Similarity Score: " + similarityScore);
     }
 
     // Función para calcular la distancia total entre dos listas
